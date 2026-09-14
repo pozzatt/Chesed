@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Chesed">
+<meta name="theme-color" content="#000000">
+<title>Chesed</title>
+<style>
+  :root{
+    --bg:#000000;
+    --surface:#110F0C;
+    --surface-raised:#16130F;
+    --border:#2E2822;
+    --border-soft:#241F1A;
+    --text:#EDE6D8;
+    --muted:#948C7C;
+    --muted-soft:#6E665A;
+    --accent:#B99257;
+    --accent-dim:#7A6440;
+    --danger:#C77B5F;
+    --radius-input:22px;
+    --radius-box:18px;
+    --radius-pill:999px;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  }
+  html, body{
+    margin:0 !important;
+    padding:0 !important;
+    background:var(--bg) !important;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .page{
+    background:var(--bg);
+    min-height:100vh;
+    min-height:100dvh;
+    width:100%;
+    display:flex;
+    flex-direction:column;
+  }
+  .wrap{
+    flex:1 1 auto;
+    display:flex;
+    flex-direction:column;
+    max-width:600px;
+    width:100%;
+    margin:0 auto;
+    padding:44px 22px calc(24px + env(safe-area-inset-bottom));
+    color:var(--text);
+  }
+  header{
+    margin-bottom:28px;
+  }
+  .brand{
+    font-family:var(--serif);
+    font-size:32px;
+    font-weight:400;
+    letter-spacing:0.02em;
+    color:var(--text);
+    margin:0 0 8px;
+  }
+  .brand em{
+    color:var(--accent);
+    font-style:italic;
+  }
+  .sub{
+    font-size:14.5px;
+    color:var(--muted);
+    line-height:1.55;
+    margin:0;
+    max-width:48ch;
+  }
+
+  /* Search field: rounded Apple-style input */
+  form{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    margin-bottom:8px;
+  }
+  .field{
+    position:relative;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-input);
+    transition:border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .field:focus-within{
+    border-color:var(--accent-dim);
+    background:var(--surface-raised);
+    box-shadow:0 0 0 4px rgba(185,146,87,0.10);
+  }
+  textarea{
+    display:block;
+    width:100%;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.5;
+    padding:16px 20px;
+    resize:none;
+    min-height:60px;
+  }
+  textarea:focus{
+    outline:none;
+  }
+  textarea::placeholder{
+    color:var(--muted-soft);
+  }
+  .row-actions{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:10px;
+  }
+  .hint-inline{
+    font-size:12.5px;
+    color:var(--muted-soft);
+    margin-right:auto;
+  }
+  .suggestions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .suggestion-chip{
+    font-family:inherit;
+    font-size:13px;
+    color:#B0A890;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-pill);
+    padding:8px 16px;
+    cursor:pointer;
+    transition:border-color 0.15s ease, color 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  }
+  .suggestion-chip:hover{
+    border-color:var(--accent);
+    color:var(--text);
+  }
+  .suggestion-chip:active{
+    transform:scale(0.96);
+  }
+  .suggestion-chip[aria-pressed="true"]{
+    border-color:var(--accent);
+    color:var(--text);
+    background:var(--surface-raised);
+  }
+  button{
+    font-family:inherit;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .btn-primary{
+    background:var(--accent);
+    color:#100E0C;
+    border:none;
+    padding:12px 26px;
+    border-radius:var(--radius-pill);
+    font-weight:600;
+    letter-spacing:0.01em;
+    transition:opacity 0.15s ease, transform 0.1s ease;
+  }
+  .btn-primary:hover{
+    opacity:0.92;
+  }
+  .btn-primary:active{
+    transform:translateY(1px) scale(0.98);
+    opacity:0.85;
+  }
+  .btn-primary:disabled{
+    opacity:0.55;
+    cursor:default;
+    transform:none;
+  }
+  .error-box{
+    display:none;
+    margin:28px 0 0;
+    padding:15px 18px;
+    border:1px solid var(--danger);
+    border-radius:var(--radius-box);
+    color:var(--danger);
+    font-size:14px;
+    line-height:1.5;
+  }
+  .error-box.visible{display:block;}
+
+  .status-note{
+    display:none;
+    margin:28px 0 0;
+    padding:13px 18px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-box);
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.5;
+  }
+  .status-note.visible{display:block;}
+
+  .results{
+    margin-top:36px;
+  }
+  .results-heading{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 20px;
+    line-height:1.5;
+  }
+  .group-heading{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--muted-soft);
+    margin:34px 0 4px;
+  }
+  .group-heading:first-child{
+    margin-top:0;
+  }
+  .verse-card{
+    border-top:1px solid var(--border-soft);
+    padding:24px 0;
+  }
+  .verse-card:last-child{
+    border-bottom:1px solid var(--border-soft);
+  }
+  .verse-ref{
+    margin:0 0 10px;
+  }
+  .verse-ref-text{
+    font-family:var(--serif);
+    font-style:italic;
+    color:var(--accent);
+    font-size:17px;
+  }
+  .verse-text{
+    font-family:var(--serif);
+    font-size:19px;
+    line-height:1.65;
+    color:var(--text);
+    margin:0 0 12px;
+  }
+  .verse-why{
+    font-size:13.5px;
+    color:var(--muted);
+    line-height:1.5;
+    margin:0;
+  }
+  footer{
+    margin-top:auto;
+    padding-top:28px;
+    border-top:1px solid var(--border-soft);
+    text-align:center;
+  }
+  footer p{
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:15px;
+    color:var(--accent-dim);
+    line-height:1.6;
+    margin:0;
+  }
+
+  /* Splash / tela inicial */
+  .splash{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    background:var(--bg);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:32px 32px calc(32px + env(safe-area-inset-bottom));
+    text-align:center;
+    transition:opacity 0.4s ease;
+  }
+  .splash.is-hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+  .splash-brand{
+    font-family:var(--serif);
+    font-size:34px;
+    font-weight:400;
+    letter-spacing:0.01em;
+    color:var(--text);
+    margin:0 0 34px;
+  }
+  .splash-brand em{
+    color:var(--accent);
+    font-style:italic;
+  }
+  .btn-abrir{
+    background:var(--accent);
+    color:#100E0C;
+    border:none;
+    padding:13px 40px;
+    border-radius:var(--radius-pill);
+    font-weight:600;
+    font-size:14.5px;
+    letter-spacing:0.02em;
+    transition:opacity 0.15s ease, transform 0.1s ease;
+  }
+  .btn-abrir:active{
+    transform:translateY(1px) scale(0.98);
+    opacity:0.85;
+  }
+  .splash-footer{
+    position:absolute;
+    left:24px;
+    right:24px;
+    bottom:calc(36px + env(safe-area-inset-bottom));
+    font-family:var(--serif);
+    font-style:italic;
+    font-size:12.5px;
+    color:var(--muted-soft);
+    line-height:1.6;
+    margin:0;
+  }
+</style>
+</head>
+<body>
+<div class="splash" id="splash">
+  <p class="splash-brand">Ches<em>e</em>d</p>
+  <button type="button" class="btn-abrir" id="abrir-btn">Abrir</button>
+  <p class="splash-footer">Para Ju, meu amor, que você sempre ache a palavra que procura.</p>
+</div>
+<div class="page">
+<div class="wrap">
+  <header>
+    <p class="brand">Ches<em>e</em>d</p>
+    <p class="sub">Descreva um tema, cole um texto que você leu, ou digite uma referência. O buscador procura em toda a Bíblia e traz todas as passagens correspondentes.</p>
+  </header>
+
+  <form id="search-form">
+    <div class="field">
+      <textarea id="query" placeholder="Ele está em tudo, não tenha medo." rows="2" aria-label="Tema ou trecho para buscar"></textarea>
+    </div>
+    <div class="suggestions" id="suggestions"></div>
+    <div class="row-actions">
+      <button type="submit" class="btn-primary" id="submit-btn">Buscar</button>
+    </div>
+  </form>
+
+  <div class="error-box" id="error-box"></div>
+  <div class="status-note" id="status-note"></div>
+
+  <div class="results" id="results"></div>
+
+  <footer>
+    <p>Para Ju, meu amor, que você sempre ache a palavra que procura.</p>
+  </footer>
+</div>
+</div>
+
+<script>
+const TOPICS = [
+  { id:"ansiedade", keywords:["ansiedade","preocupacao","preocupado","ansioso","inquieto","angustia"],
+    verses:[
+      {reference:"Filipenses 4:6-7", text:"Não estejais inquietos por coisa alguma; antes as vossas petições sejam em tudo conhecidas diante de Deus, pela oração e súplicas, com ação de graças. E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos sentimentos em Cristo Jesus.", why:"Fala diretamente sobre não se inquietar e entregar as preocupações a Deus."},
+      {reference:"1 Pedro 5:7", text:"Lançando sobre ele toda a vossa ansiedade, porque ele tem cuidado de vós.", why:"Convite direto a entregar a ansiedade a Deus."},
+      {reference:"Mateus 6:34", text:"Não vos inquieteis, pois, pelo dia de amanhã, porque o dia de amanhã cuidará de si mesmo. Basta a cada dia o seu mal.", why:"Jesus ensina a não antecipar preocupações do futuro."},
+      {reference:"João 14:27", text:"Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize.", why:"Jesus oferece uma paz diferente da do mundo."},
+      {reference:"Salmos 55:22", text:"Lança a tua carga sobre o Senhor, e ele te sustentará; nunca permitirá que o justo seja abalado.", why:"Entregar o peso da preocupação a Deus."}
+    ]},
+  { id:"medo", keywords:["medo","temor","assustado","com medo"],
+    verses:[
+      {reference:"Isaías 41:10", text:"Não temas, porque eu sou contigo; não te assombres, porque eu sou o teu Deus; eu te fortaleço, e te ajudo, e te sustento com a destra da minha justiça.", why:"Promessa de presença de Deus contra o medo."},
+      {reference:"2 Timóteo 1:7", text:"Porque Deus não nos deu o espírito de temor, mas de fortaleza, e de amor, e de moderação.", why:"Explica a origem do medo e o que Deus oferece em seu lugar."},
+      {reference:"Salmos 23:4", text:"Ainda que eu andasse pelo vale da sombra da morte, não temeria mal algum, porque tu estás comigo; a tua vara e o teu cajado me consolam.", why:"Confiança mesmo diante do perigo."},
+      {reference:"Salmos 27:1", text:"O Senhor é a minha luz e a minha salvação; a quem temerei? O Senhor é a força da minha vida; de quem me recearei?", why:"Deus como razão para não temer."},
+      {reference:"1 João 4:18", text:"No amor não há temor, antes o perfeito amor lança fora o temor; porque o temor tem consigo a pena, e o que teme não é perfeito em amor.", why:"Relação entre amor perfeito e ausência de medo."}
+    ]},
+  { id:"perdao", keywords:["perdao","perdoar","perdoado","magoa","ofensa"],
+    verses:[
+      {reference:"Efésios 4:32", text:"Antes sede uns para com os outros benignos, misericordiosos, perdoando-vos uns aos outros, como também Deus vos perdoou em Cristo.", why:"Base do perdão: como Deus perdoou, devemos perdoar."},
+      {reference:"Colossenses 3:13", text:"Suportando-vos uns aos outros, e perdoando-vos uns aos outros, se algum tiver queixa contra outro; assim como Cristo vos perdoou, assim fazei vós também.", why:"Instrução prática para perdoar quem magoou."},
+      {reference:"Mateus 6:14-15", text:"Porque, se perdoardes aos homens as suas ofensas, também vosso Pai celestial vos perdoará a vós; se, porém, não perdoardes aos homens as suas ofensas, também vosso Pai vos não perdoará as vossas ofensas.", why:"Liga o perdoar ao ser perdoado por Deus."},
+      {reference:"Lucas 6:37", text:"Não julgueis, e não sereis julgados; não condeneis, e não sereis condenados; perdoai, e sereis perdoados.", why:"Perdoar como caminho para ser perdoado."},
+      {reference:"Marcos 11:25", text:"E, quando estiverdes orando, perdoai, se tendes alguma coisa contra alguém, para que vosso Pai, que está nos céus, vos perdoe as vossas ofensas.", why:"Liga o perdão à oração."}
+    ]},
+  { id:"sexo", keywords:["sexo antes do casamento","sexo","fornicacao","virgindade","pureza sexual","relacao sexual","namoro"],
+    verses:[
+      {reference:"1 Coríntios 6:18-20", text:"Fugi da fornicação. Todo pecado que o homem comete é fora do corpo; mas o que fornica peca contra o seu próprio corpo. Ou não sabeis que o vosso corpo é o templo do Espírito Santo, que habita em vós, o qual tendes da parte de Deus, e que não sois de vós mesmos? Porque fostes comprados por bom preço; glorificai, pois, a Deus no vosso corpo e no vosso espírito, os quais pertencem a Deus.", why:"Ensina a fugir da fornicação e trata o corpo como templo do Espírito Santo."},
+      {reference:"1 Tessalonicenses 4:3-4", text:"Porque esta é a vontade de Deus, a saber, a vossa santificação, que vos abstenhais da fornicação; Que cada um de vós saiba possuir o seu próprio vaso em santificação e honra.", why:"Chama a abstenção sexual fora do casamento de vontade de Deus."},
+      {reference:"Hebreus 13:4", text:"Honrado seja entre todos o matrimônio e o leito sem mácula; porém aos fornicadores e adúlteros Deus os julgará.", why:"Coloca a relação sexual dentro do contexto do casamento."},
+      {reference:"2 Timóteo 2:22", text:"Foge também dos desejos da mocidade; segue, porém, a justiça, a fé, o amor, e a paz com os que, de coração puro, invocam o Senhor.", why:"Instrução para fugir dos desejos e buscar pureza de coração."},
+      {reference:"1 Coríntios 7:2", text:"Mas, por causa da fornicação, cada homem tenha a sua própria mulher, e cada mulher tenha o seu próprio marido.", why:"Coloca a relação sexual no contexto do casamento como proteção contra a fornicação."}
+    ]},
+  { id:"proposito", keywords:["proposito","vontade de deus","chamado","destino"],
+    verses:[
+      {reference:"Jeremias 29:11", text:"Porque eu bem sei os pensamentos que tenho a vosso respeito, diz o Senhor; pensamentos de paz, e não de mal, para vos dar o fim que esperais.", why:"Deus tem planos de bem para a vida da pessoa."},
+      {reference:"Romanos 12:2", text:"E não vos conformeis com este mundo, mas transformai-vos pela renovação do vosso entendimento, para que experimenteis qual seja a boa, agradável, e perfeita vontade de Deus.", why:"Caminho para descobrir a vontade de Deus."},
+      {reference:"Efésios 2:10", text:"Porque somos feitura sua, criados em Cristo Jesus para as boas obras, as quais Deus preparou para que andássemos nelas.", why:"Cada pessoa tem obras preparadas por Deus para ela."},
+      {reference:"Salmos 138:8", text:"O Senhor aperfeiçoará o que me concerne; a tua benignidade, Senhor, dura para sempre; não abandones as obras de tuas mãos.", why:"Confiança de que Deus completa seu propósito na vida da pessoa."},
+      {reference:"Provérbios 19:21", text:"Muitos propósitos há no coração do homem, mas o conselho do Senhor permanecerá.", why:"O plano de Deus prevalece sobre os planos humanos."}
+    ]},
+  { id:"fe", keywords:["fe","crer","confianca em deus","duvida"],
+    verses:[
+      {reference:"Hebreus 11:1", text:"Ora, a fé é o firme fundamento das coisas que se esperam, e a prova das coisas que se não veem.", why:"Definição bíblica de fé."},
+      {reference:"Romanos 10:17", text:"De sorte que a fé é pelo ouvir, e o ouvir pela palavra de Deus.", why:"Explica de onde vem a fé."},
+      {reference:"Marcos 9:23", text:"E Jesus disse-lhe: Se podes crer, tudo é possível ao que crê.", why:"Sobre o poder de crer."},
+      {reference:"Tiago 2:17", text:"Assim também a fé, se não tiver as obras, é morta em si mesma.", why:"A fé se mostra viva através das obras."},
+      {reference:"Mateus 17:20", text:"...se tiverdes fé como um grão de mostarda, direis a este monte: Passa daqui para acolá, e há de passar; e nada vos será impossível.", why:"Sobre o poder de uma fé pequena, mas verdadeira."}
+    ]},
+  { id:"casamento", keywords:["casamento","noivado","marido","esposa","matrimonio"],
+    verses:[
+      {reference:"Gênesis 2:24", text:"Portanto deixará o homem a seu pai e a sua mãe, e apegar-se-á à sua mulher, e serão ambos uma carne.", why:"Fundamento bíblico do casamento."},
+      {reference:"Efésios 5:25", text:"Vós, maridos, amai as vossas próprias mulheres, como também Cristo amou a igreja, e a si mesmo se entregou por ela.", why:"Padrão de amor no casamento."},
+      {reference:"Eclesiastes 4:9-10", text:"Melhor é serem dois do que um, porque têm melhor paga do seu trabalho. Porque se um cair, o outro levanta o seu companheiro; mas ai do que estiver só, pois, caindo, não haverá outro que o levante.", why:"Sobre a força de estar unido a alguém."},
+      {reference:"Provérbios 18:22", text:"O que encontra esposa, encontra o bem, e alcança a benevolência do Senhor.", why:"O casamento como uma bênção de Deus."},
+      {reference:"Marcos 10:9", text:"Portanto, o que Deus ajuntou não o separe o homem.", why:"Sobre a união do casamento diante de Deus."}
+    ]},
+  { id:"luto", keywords:["luto","tristeza","sofrimento","dor","perda","chorar"],
+    verses:[
+      {reference:"Salmos 34:18", text:"Perto está o Senhor dos que têm o coração quebrantado, e salva os contritos de espírito.", why:"Proximidade de Deus na dor."},
+      {reference:"Mateus 5:4", text:"Bem-aventurados os que choram, porque eles serão consolados.", why:"Promessa de consolo para quem sofre."},
+      {reference:"Apocalipse 21:4", text:"E Deus limpará de seus olhos toda lágrima; e não haverá mais morte, nem pranto, nem clamor, nem dor; porque já as primeiras coisas são passadas.", why:"Esperança futura sem sofrimento."},
+      {reference:"Salmos 30:5", text:"...à tarde pode durar o choro, e pela manhã há alegria.", why:"A dor não é permanente."},
+      {reference:"João 11:25", text:"Disse-lhe Jesus: Eu sou a ressurreição e a vida; quem crê em mim, ainda que esteja morto, viverá.", why:"Esperança de vida além da morte."}
+    ]},
+  { id:"dinheiro", keywords:["dinheiro","ganancia","riqueza","financeiro","divida"],
+    verses:[
+      {reference:"1 Timóteo 6:10", text:"Porque o amor do dinheiro é a raiz de todos os males; e nessa cobiça alguns se desviaram da fé, e se traspassaram a si mesmos com muitas dores.", why:"Alerta sobre o amor ao dinheiro."},
+      {reference:"Mateus 6:24", text:"Ninguém pode servir a dois senhores; porque ou há de odiar um e amar o outro, ou se dedicará a um e desprezará o outro. Não podeis servir a Deus e a Mamom.", why:"Sobre prioridade entre Deus e dinheiro."},
+      {reference:"Filipenses 4:19", text:"O meu Deus, segundo as suas riquezas, suprirá todas as vossas necessidades em glória, por Cristo Jesus.", why:"Promessa de provisão para as necessidades."},
+      {reference:"Provérbios 22:7", text:"O rico domina sobre os pobres, e o que toma emprestado é servo do que empresta.", why:"Alerta sobre dívidas e dependência financeira."},
+      {reference:"Hebreus 13:5", text:"Sejam os vossos costumes sem avareza, contentando-vos com o que tendes; porque ele disse: Não te deixarei, nem te desampararei.", why:"Contentamento como antídoto contra a ganância."}
+    ]},
+  { id:"orgulho", keywords:["orgulho","humildade","soberba","arrogancia","humilde"],
+    verses:[
+      {reference:"Provérbios 16:18", text:"A soberba precede a ruína, e a altivez do espírito precede a queda.", why:"Alerta sobre o orgulho."},
+      {reference:"Tiago 4:6", text:"Antes dá maior graça. Portanto diz: Deus resiste aos soberbos, dá, porém, graça aos humildes.", why:"Contraste entre soberba e humildade diante de Deus."},
+      {reference:"Filipenses 2:3", text:"Nada façais por contenda ou por vanglória, mas por humildade; cada um considere os outros superiores a si mesmo.", why:"Ensino prático sobre humildade."},
+      {reference:"1 Pedro 5:6", text:"Humilhai-vos, pois, debaixo da potente mão de Deus, para que a seu tempo vos exalte.", why:"A humildade diante de Deus traz exaltação no tempo certo."},
+      {reference:"Provérbios 11:2", text:"Vindo a soberba, virá também a afronta; mas com os humildes está a sabedoria.", why:"Liga humildade à sabedoria."}
+    ]},
+  { id:"tentacao", keywords:["tentacao","tentado","vicio","pecado repetido"],
+    verses:[
+      {reference:"1 Coríntios 10:13", text:"Não veio sobre vós tentação, senão humana; mas fiel é Deus, que não vos deixará tentar acima do que podeis, antes com a tentação dará também o escape, para que a possais suportar.", why:"Promessa de uma saída em toda tentação."},
+      {reference:"Tiago 1:12", text:"Bem-aventurado o varão que sofre a tentação; porque, quando for provado, receberá a coroa da vida, a qual o Senhor tem prometido aos que o amam.", why:"Recompensa por resistir à tentação."},
+      {reference:"Mateus 26:41", text:"Vigiai e orai, para que não entreis em tentação; na verdade o espírito está pronto, mas a carne é fraca.", why:"Instrução para vigiar e orar contra a tentação."},
+      {reference:"Gálatas 5:16", text:"Digo, porém: Andai em Espírito, e não cumprireis a concupiscência da carne.", why:"Andar no Espírito como forma de resistir à tentação."},
+      {reference:"Efésios 6:11", text:"Revesti-vos de toda a armadura de Deus, para que possais estar firmes contra as astutas ciladas do diabo.", why:"Imagem da armadura espiritual contra a tentação."}
+    ]},
+  { id:"salvacao", keywords:["salvacao","arrependimento","salvo","aceitar jesus","conversao"],
+    verses:[
+      {reference:"Romanos 10:9", text:"A saber: Se com a tua boca confessares ao Senhor Jesus, e em teu coração creres que Deus o ressuscitou dos mortos, serás salvo.", why:"Caminho para a salvação segundo Paulo."},
+      {reference:"Efésios 2:8-9", text:"Porque pela graça sois salvos, por meio da fé; e isto não vem de vós, é dom de Deus. Não vem das obras, para que ninguém se glorie.", why:"A salvação é dom de Deus, não conquista pelo esforço."},
+      {reference:"Atos 3:19", text:"Arrependei-vos, pois, e convertei-vos, para que sejam apagados os vossos pecados, e venham assim os tempos do refrigério, pela presença do Senhor.", why:"Chamado ao arrependimento."},
+      {reference:"João 3:16", text:"Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito, para que todo aquele que nele crê não pereça, mas tenha a vida eterna.", why:"O versículo central sobre o amor de Deus e a salvação."},
+      {reference:"João 14:6", text:"Disse-lhe Jesus: Eu sou o caminho, e a verdade e a vida; ninguém vem ao Pai, senão por mim.", why:"Jesus como único caminho até o Pai."}
+    ]},
+  { id:"esperanca", keywords:["esperanca","futuro incerto"],
+    verses:[
+      {reference:"Romanos 8:28", text:"E sabemos que todas as coisas contribuem juntamente para o bem daqueles que amam a Deus, daqueles que são chamados segundo o seu propósito.", why:"Deus trabalha todas as coisas para o bem."},
+      {reference:"Lamentações 3:22-23", text:"As misericórdias do Senhor são a causa de não sermos consumidos, porque as suas misericórdias não têm fim; Novas são cada manhã; grande é a tua fidelidade.", why:"Renovação diária da misericórdia de Deus."},
+      {reference:"Romanos 15:13", text:"Ora, o Deus de esperança vos encha de todo o gozo e paz em crença, para que abundeis em esperança pela virtude do Espírito Santo.", why:"Bênção de esperança pelo Espírito Santo."},
+      {reference:"Salmos 39:7", text:"Agora, pois, Senhor, que espero eu? A minha esperança está em ti.", why:"Colocar a esperança somente em Deus."},
+      {reference:"Hebreus 6:19", text:"A qual temos como âncora da alma segura e firme, e que penetra até ao interior do véu.", why:"A esperança comparada a uma âncora firme."}
+    ]},
+  { id:"alegria", keywords:["alegria","felicidade","gozo","contentamento"],
+    verses:[
+      {reference:"Neemias 8:10", text:"...a alegria do Senhor é a vossa força.", why:"A alegria em Deus como fonte de força."},
+      {reference:"Salmos 16:11", text:"Tu me farás ver a vereda da vida; na tua presença há fartura de alegrias; à tua mão direita há delícias perpetuamente.", why:"Alegria plena na presença de Deus."},
+      {reference:"Filipenses 4:4", text:"Regozijai-vos sempre no Senhor; outra vez digo, regozijai-vos.", why:"Instrução a se alegrar continuamente."},
+      {reference:"Provérbios 17:22", text:"O coração alegre serve de bom remédio, mas o espírito abatido seca os ossos.", why:"Efeito da alegria sobre o corpo e o ânimo."},
+      {reference:"Salmos 30:11", text:"Tornaste o meu pranto em folguedo, desataste o meu saco, e me cingiste de alegria.", why:"Deus transformando tristeza em alegria."}
+    ]},
+  { id:"paciencia", keywords:["paciencia","impaciente","esperar"],
+    verses:[
+      {reference:"Tiago 1:2-4", text:"Meus irmãos, tende grande gozo quando cairdes em várias tentações. Sabendo que a prova da vossa fé produz a paciência. Ora, a paciência tem a sua obra perfeita, para que sejais perfeitos e completos, sem faltar em coisa alguma.", why:"A paciência amadurece através das provações."},
+      {reference:"Romanos 5:3-4", text:"E não somente isto, mas também nos gloriamos nas tribulações; sabendo que a tribulação produz a paciência, E a paciência a experiência, e a experiência a esperança.", why:"Sequência entre tribulação, paciência e esperança."},
+      {reference:"Gálatas 6:9", text:"E não nos cansemos de fazer bem, porque a seu tempo ceifaremos, se não houvermos desfalecido.", why:"Persistir sem desanimar."},
+      {reference:"Eclesiastes 7:8", text:"Melhor é o fim das coisas do que o princípio delas; melhor é o paciente de espírito do que o altivo de espírito.", why:"Valor da paciência sobre a pressa e a arrogância."},
+      {reference:"Colossenses 1:11", text:"Corroborados em todo o poder, segundo a força da sua glória, para toda a paciência e longanimidade com gozo.", why:"Pedido de fortalecimento para paciência com alegria."}
+    ]},
+  { id:"sabedoria", keywords:["sabedoria","decisao","o que fazer","conselho"],
+    verses:[
+      {reference:"Tiago 1:5", text:"E, se algum de vós tem falta de sabedoria, peça-a a Deus, que a todos dá liberalmente, e o não lança em rosto, e ser-lhe-á dada.", why:"Deus dá sabedoria a quem pede."},
+      {reference:"Provérbios 3:5-6", text:"Confia no Senhor de todo o teu coração, e não te estribes no teu próprio entendimento. Reconhece-o em todos os teus caminhos, e ele endireitará as tuas veredas.", why:"Confiar em Deus mais do que no próprio entendimento."},
+      {reference:"Salmos 32:8", text:"Instruir-te-ei, e ensinar-te-ei o caminho que deves seguir; guiar-te-ei com os meus olhos.", why:"Promessa de direção de Deus."},
+      {reference:"Provérbios 4:7", text:"A sabedoria é a coisa principal; adquire pois a sabedoria, sim, com tudo o que possuis, adquire o conhecimento.", why:"O valor supremo da sabedoria."},
+      {reference:"Isaías 30:21", text:"E os teus ouvidos ouvirão a palavra do que está por detrás de ti, dizendo: Este é o caminho, andai nele, quando vos desviardes, quer para a direita quer para a esquerda.", why:"Direção de Deus nos momentos de dúvida."}
+    ]},
+  { id:"amor", keywords:["amor","amar","relacionamento"],
+    verses:[
+      {reference:"1 Coríntios 13:4-7", text:"O amor é sofredor, é benigno; o amor não é invejoso; o amor não trata com leviandade, não se ensoberbece, Não se porta com indecência, não busca os seus interesses, não se irrita, não suspeita mal; Não folga com a injustiça, mas folga com a verdade; Tudo sofre, tudo crê, tudo espera, tudo suporta.", why:"A descrição bíblica mais completa do amor."},
+      {reference:"João 15:13", text:"Ninguém tem maior amor do que este, de dar alguém a sua vida pelos seus amigos.", why:"O maior exemplo de amor."},
+      {reference:"1 João 4:19", text:"Nós o amamos a ele porque ele nos amou primeiro.", why:"A origem do amor está em Deus."},
+      {reference:"Romanos 5:8", text:"Mas Deus prova o seu amor para conosco, em que Cristo morreu por nós, sendo nós ainda pecadores.", why:"O amor de Deus demonstrado antes de qualquer mérito."},
+      {reference:"Provérbios 10:12", text:"O ódio excita contendas, mas o amor cobre todas as transgressões.", why:"O amor como algo que cobre e não expõe falhas."}
+    ]},
+  { id:"gratidao", keywords:["gratidao","agradecer","grato"],
+    verses:[
+      {reference:"1 Tessalonicenses 5:18", text:"Em tudo dai graças, porque esta é a vontade de Deus em Cristo Jesus para convosco.", why:"Gratidão como vontade de Deus em toda situação."},
+      {reference:"Salmos 100:4", text:"Entrai pelas suas portas com ação de graças, e em seus átrios com louvor; louvai-o, e bendizei o seu nome.", why:"Convite a entrar na presença de Deus com gratidão."},
+      {reference:"Colossenses 3:17", text:"E, quando fizerdes algo, seja em palavra seja em obra, fazei tudo em nome do Senhor Jesus, dando por ele graças a Deus Pai.", why:"Gratidão em tudo o que se faz."},
+      {reference:"Salmos 107:1", text:"Louvai ao Senhor, porque ele é bom, porque a sua benignidade dura para sempre.", why:"Motivo permanente para gratidão."},
+      {reference:"Hebreus 13:15", text:"Assim que, ofereçamos sempre por ele a Deus sacrifício de louvor, isto é, o fruto dos lábios que confessam o seu nome.", why:"A gratidão como um sacrifício contínuo de louvor."}
+    ]},
+  { id:"raiva", keywords:["raiva","ira","irritado","bravo"],
+    verses:[
+      {reference:"Efésios 4:26", text:"Irai-vos, e não pequeis; não se ponha o sol sobre a vossa ira.", why:"Instrução sobre não deixar a raiva se prolongar."},
+      {reference:"Tiago 1:19-20", text:"Assim que, meus amados irmãos, todo o homem seja pronto para ouvir, tardio para falar, tardio para se irar. Porque a ira do homem não opera a justiça de Deus.", why:"Ser mais lento para se irar."},
+      {reference:"Provérbios 15:1", text:"A resposta branda desvia o furor, mas a palavra dura suscita a ira.", why:"O poder de uma resposta calma."},
+      {reference:"Provérbios 29:11", text:"Todo o seu espírito profere o tolo, mas o sábio ainda o guarda para depois.", why:"Diferença entre reagir impulsivamente e conter a raiva."},
+      {reference:"Eclesiastes 7:9", text:"Não te apresses no teu espírito a irar-te, porque a ira repousa no seio dos tolos.", why:"Alerta contra a ira precipitada."}
+    ]},
+  { id:"solidao", keywords:["solidao","sozinho","abandonado"],
+    verses:[
+      {reference:"Deuteronômio 31:6", text:"Esforçai-vos, e animai-vos; não temais, nem vos espanteis diante deles, porque o Senhor teu Deus é o que vai contigo; não te deixará, nem te desamparará.", why:"Promessa de que Deus nunca abandona."},
+      {reference:"Mateus 28:20", text:"...e eis que eu estou convosco todos os dias, até a consumação dos séculos.", why:"Promessa da presença constante de Jesus."},
+      {reference:"Salmos 68:6", text:"Deus faz que o solitário viva em família; liberta o cativo, fazendo-o próspero.", why:"Deus cuida de quem está sozinho."},
+      {reference:"Salmos 25:16", text:"Olha para mim, e tem piedade de mim, porque estou solitário e aflito.", why:"Um clamor sincero a Deus na solidão."},
+      {reference:"Romanos 8:38-39", text:"Porque eu tenho por certo que nem a morte, nem a vida, nem os anjos, nem os principados, nem as potestades, nem o presente, nem o porvir, Nem a altura, nem a profundidade, nem alguma outra criatura nos poderá separar do amor de Deus, que está em Cristo Jesus nosso Senhor.", why:"Nada pode separar a pessoa do amor de Deus."}
+    ]},
+  { id:"confianca", keywords:["confianca","confianca em deus","confiar","incerteza"],
+    verses:[
+      {reference:"Salmos 46:1", text:"Deus é o nosso refúgio e fortaleza, socorro bem presente na angústia.", why:"Deus como refúgio seguro."},
+      {reference:"Isaías 26:3", text:"Tu conservarás em paz aquele cuja mente está firme em ti; porque ele confia em ti.", why:"Paz para quem confia em Deus."},
+      {reference:"Salmos 56:3", text:"Em que dia eu temer, hei de confiar em ti.", why:"Escolher confiar mesmo com medo."},
+      {reference:"Jó 13:15", text:"Ainda que ele me mate, nele esperarei; contudo os meus caminhos defenderei diante dele.", why:"Confiança em Deus mesmo em meio ao sofrimento extremo."},
+      {reference:"Salmos 118:8", text:"Melhor é confiar no Senhor do que confiar no homem.", why:"Comparação entre confiar em Deus e confiar nas pessoas."}
+    ]},
+  { id:"protecao", keywords:["protecao","proteger","protegido","refugio","abrigo","livramento"],
+    verses:[
+      {reference:"Salmos 91:1-2", text:"Aquele que habita no esconderijo do Altíssimo, à sombra do Onipotente descansará. Direi do Senhor: Ele é o meu Deus, o meu refúgio, a minha fortaleza, e nele confiarei.", why:"O salmo mais direto sobre a proteção de Deus sobre quem nele habita."},
+      {reference:"Salmos 91:11", text:"Porque aos seus anjos dará ordem a teu respeito, para te guardarem em todos os teus caminhos.", why:"Promessa de proteção angelical em todo caminho."},
+      {reference:"Provérbios 18:10", text:"Torre forte é o nome do Senhor; a ele correrá o justo, e estará em alto refúgio.", why:"O nome do Senhor como torre forte de proteção."},
+      {reference:"Salmos 34:7", text:"O anjo do Senhor acampa-se ao redor dos que o temem, e os livra.", why:"A proteção de Deus cercando quem o teme."},
+      {reference:"2 Tessalonicenses 3:3", text:"Mas fiel é o Senhor, que vos confirmará e guardará do maligno.", why:"Deus como aquele que guarda e protege do mal."},
+      {reference:"Salmos 121:7-8", text:"O Senhor te guardará de todo o mal; ele guardará a tua alma. O Senhor guardará a tua entrada e a tua saída, desde agora e para sempre.", why:"Promessa de guarda constante sobre a vida da pessoa."}
+    ]},
+  { id:"desanimo", keywords:["desanimo","depressao","tristeza profunda","sem forcas"],
+    verses:[
+      {reference:"Salmos 42:11", text:"Por que estás abatida, ó minha alma, e por que te perturbas em mim? Espera em Deus, pois ainda o louvarei; ele é a salvação da minha face e o meu Deus.", why:"Diálogo com a própria alma abatida."},
+      {reference:"Salmos 34:17", text:"Os justos clamam, e o Senhor os ouve, e os livra de todas as suas angústias.", why:"Deus ouve o clamor de quem sofre."},
+      {reference:"2 Coríntios 4:8-9", text:"Em tudo somos atribulados, mas não angustiados; perplexos, mas não desanimados; Perseguidos, mas não desamparados; abatidos, mas não destruídos.", why:"Resistir mesmo em meio à dificuldade."},
+      {reference:"Salmos 143:7", text:"Ouve-me depressa, Senhor, o meu espírito desfalece; não escondas de mim a tua face, para que eu não seja semelhante aos que descem à cova.", why:"Um clamor urgente em momento de desânimo."},
+      {reference:"Provérbios 24:16", text:"Porque sete vezes cai o justo, e se levanta; mas os ímpios tropeçam no mal.", why:"Levantar-se de novo depois de cair."}
+    ]},
+  { id:"filhos", keywords:["filhos","educar filhos","criancas","pais"],
+    verses:[
+      {reference:"Provérbios 22:6", text:"Ensina a criança no caminho em que deve andar, e, ainda quando for velho, não se desviará dele.", why:"Princípio sobre educar os filhos."},
+      {reference:"Efésios 6:4", text:"E vós, pais, não provoqueis a ira em vossos filhos, mas criai-os na doutrina e admoestação do Senhor.", why:"Instrução aos pais sobre criação dos filhos."},
+      {reference:"Salmos 127:3", text:"Eis que os filhos são herança do Senhor; o fruto do ventre, seu galardão.", why:"Os filhos como herança de Deus."},
+      {reference:"Deuteronômio 6:6-7", text:"E estas palavras, que hoje te ordeno, estarão no teu coração; E as intimarás a teus filhos, e delas falarás assentado em tua casa, e andando pelo caminho, e ao deitar-te, e ao levantar-te.", why:"Ensinar a palavra de Deus aos filhos no dia a dia."},
+      {reference:"3 João 1:4", text:"Não tenho maior gozo do que este: o de ouvir que os meus filhos andam na verdade.", why:"A alegria de ver os filhos vivendo na verdade."}
+    ]},
+  { id:"amizade", keywords:["amizade","amigo","amigos"],
+    verses:[
+      {reference:"Provérbios 17:17", text:"Em todo tempo ama o amigo; e para a angústia nasce o irmão.", why:"O valor da amizade constante."},
+      {reference:"Provérbios 27:17", text:"Ferro com ferro se aguça; assim o homem aguça o rosto do seu amigo.", why:"Amigos que ajudam a crescer."},
+      {reference:"Eclesiastes 4:9-10", text:"Melhor é serem dois do que um, porque têm melhor paga do seu trabalho. Porque se um cair, o outro levanta o seu companheiro; mas ai do que estiver só, pois, caindo, não haverá outro que o levante.", why:"A força de não estar sozinho."},
+      {reference:"João 15:15", text:"Já vos não chamo servos, porque o servo não sabe o que faz o seu senhor; mas tenho-vos chamado amigos, porque tudo quanto ouvi de meu Pai vos tenho feito conhecer.", why:"Jesus chamando os discípulos de amigos."},
+      {reference:"Provérbios 18:24", text:"O homem que tem amigos há de mostrar-se amigável; e há amigo mais chegado do que um irmão.", why:"Sobre a proximidade de uma verdadeira amizade."}
+    ]},
+  { id:"palavras", keywords:["palavras","lingua","falar mal","fofoca"],
+    verses:[
+      {reference:"Provérbios 18:21", text:"A morte e a vida estão no poder da língua; e aquele que a ama comerá do seu fruto.", why:"O peso das palavras que falamos."},
+      {reference:"Efésios 4:29", text:"Nenhuma palavra torpe saia da vossa boca, mas só a que for boa para edificação da necessidade, para que dê graça aos que ouvem.", why:"Instrução sobre o tipo de palavra a usar."},
+      {reference:"Colossenses 4:6", text:"A vossa palavra seja sempre com graça, temperada com sal, para que saibais como haveis de responder a cada um.", why:"Como falar com graça."},
+      {reference:"Tiago 1:26", text:"Se alguém cuida ser religioso, e não refreia a sua língua, antes engana o seu coração, a religião do tal é vã.", why:"A língua como teste de autenticidade da fé."},
+      {reference:"Mateus 12:36", text:"Mas eu vos digo que de toda a palavra ociosa que os homens disserem hão de dar conta no dia do juízo.", why:"Responsabilidade pelas palavras ditas."}
+    ]},
+  { id:"oracao", keywords:["oracao","orar","pedir a deus"],
+    verses:[
+      {reference:"1 Tessalonicenses 5:17", text:"Orai sem cessar.", why:"Instrução direta sobre orar continuamente."},
+      {reference:"Mateus 7:7", text:"Pedi, e dar-se-vos-á; buscai e encontrareis; batei, e abrir-se-vos-á.", why:"Promessa de resposta a quem pede, busca e bate."},
+      {reference:"Tiago 5:16", text:"A oração feita por um justo pode muito em seus efeitos.", why:"O poder da oração."},
+      {reference:"João 16:24", text:"Até agora nada pedistes em meu nome; pedi e recebereis, para que o vosso gozo se cumpra.", why:"Pedir em nome de Jesus."},
+      {reference:"Salmos 145:18", text:"Perto está o Senhor de todos os que o invocam, de todos os que o invocam em verdade.", why:"A proximidade de Deus para quem ora sinceramente."}
+    ]},
+  { id:"generosidade", keywords:["generosidade","doar","ajudar os outros","caridade"],
+    verses:[
+      {reference:"2 Coríntios 9:7", text:"Cada um contribua segundo propôs no seu coração; não com tristeza, ou por necessidade; porque Deus ama ao que dá com alegria.", why:"Como e por que dar com alegria."},
+      {reference:"Provérbios 11:25", text:"A alma abençoadora engordará, e o que regar também será regado.", why:"Quem abençoa também é abençoado."},
+      {reference:"Atos 20:35", text:"Mais bem-aventurada coisa é dar do que receber.", why:"Palavras de Jesus sobre o dar."},
+      {reference:"Lucas 6:38", text:"Dai, e dar-se-vos-á; boa medida, recalcada, sacudida e transbordando vos deitarão no vosso regaço.", why:"A generosidade retornando de forma abundante."},
+      {reference:"Provérbios 19:17", text:"Ao Senhor empresta o que se compadece do pobre, e ele lhe pagará o seu benefício.", why:"Ajudar os necessitados como um empréstimo a Deus."}
+    ]},
+  { id:"perseveranca", keywords:["perseveranca","persistir","nao desistir","cansaco"],
+    verses:[
+      {reference:"Hebreus 12:1", text:"Depondo todo o peso, e o pecado que tão de perto nos rodeia, corramos com paciência a carreira que nos está proposta.", why:"Correr a corrida com perseverança."},
+      {reference:"Filipenses 1:6", text:"Tendo por certo isto mesmo, que aquele que em vós começou a boa obra a aperfeiçoará até ao dia de Jesus Cristo.", why:"Deus completa o que começou."},
+      {reference:"2 Timóteo 4:7", text:"Combati o bom combate, acabei a carreira, guardei a fé.", why:"Exemplo de perseverança até o fim."},
+      {reference:"Romanos 8:31", text:"Que diremos, pois, a estas coisas? Se Deus é por nós, quem será contra nós?", why:"Segurança para persistir sabendo que Deus está do nosso lado."},
+      {reference:"Isaías 40:29", text:"Dá força ao cansado, e multiplica as forças ao que não tem nenhum vigor.", why:"Deus renova as forças de quem está cansado."}
+    ]},
+  { id:"inveja", keywords:["inveja","comparacao","ciume"],
+    verses:[
+      {reference:"Gálatas 5:26", text:"Não sejamos cobiçosos de vanglória, irritando-nos uns aos outros, invejando-nos uns aos outros.", why:"Alerta contra a inveja entre pessoas."},
+      {reference:"Tiago 3:16", text:"Porque onde há inveja e contenda, aí há confusão e toda a obra perversa.", why:"Consequências da inveja."},
+      {reference:"Provérbios 14:30", text:"O coração tranquilo é a vida da carne, mas a inveja é a podridão dos ossos.", why:"Efeito da inveja sobre a própria pessoa."},
+      {reference:"Salmos 37:1", text:"Não te enfades por causa dos malfeitores, nem tenhas inveja dos que praticam a iniquidade.", why:"Instrução a não invejar quem parece prosperar fazendo o mal."},
+      {reference:"Provérbios 23:17", text:"Não tenha o teu coração inveja dos pecadores; antes conserva-te no temor do Senhor todo o dia.", why:"Substituir a inveja pelo temor a Deus."}
+    ]},
+  { id:"trabalho", keywords:["trabalho","emprego","carreira"],
+    verses:[
+      {reference:"Colossenses 3:23", text:"E, tudo quanto fizerdes, fazei-o de coração, como ao Senhor, e não aos homens.", why:"Atitude no trabalho como para Deus."},
+      {reference:"Provérbios 14:23", text:"Em todo o trabalho há proveito, mas ficar-se só em palavras leva à pobreza.", why:"O valor do trabalho em relação a só falar."},
+      {reference:"Eclesiastes 3:13", text:"E também que todo o homem coma e beba, e goze do bem de todo o seu trabalho; isto é um dom de Deus.", why:"O trabalho e seu fruto como dom de Deus."},
+      {reference:"2 Tessalonicenses 3:10", text:"...se alguém não quer trabalhar, também não coma.", why:"Princípio sobre a importância do trabalho."},
+      {reference:"Provérbios 16:3", text:"Confia ao Senhor as tuas obras, e teus pensamentos serão estabelecidos.", why:"Entregar o trabalho e os planos a Deus."}
+    ]},
+  { id:"cura", keywords:["cura","doenca","saude","enfermidade"],
+    verses:[
+      {reference:"Jeremias 17:14", text:"Sara-me, Senhor, e sararei; salva-me, e serei salvo; pois tu és o meu louvor.", why:"Pedido de cura a Deus."},
+      {reference:"Salmos 103:2-3", text:"Bendize, ó minha alma, ao Senhor, e não te esqueças de nenhum de seus benefícios. É ele quem perdoa todas as tuas iniquidades, quem sara todas as tuas enfermidades.", why:"Deus como quem perdoa e cura."},
+      {reference:"Isaías 53:5", text:"Mas ele foi ferido pelas nossas transgressões, e moído pelas nossas iniquidades; o castigo que nos traz a paz estava sobre ele, e pelas suas pisaduras fomos sarados.", why:"A cura ligada ao sacrifício de Jesus."},
+      {reference:"Tiago 5:15", text:"E a oração da fé salvará o enfermo, e o Senhor o levantará; e, se houver cometido pecados, ser-lhe-ão perdoados.", why:"A oração de fé associada à cura."},
+      {reference:"Salmos 30:2", text:"Senhor, meu Deus, clamei a ti, e tu me saraste.", why:"Um testemunho pessoal de cura."}
+    ]},
+  { id:"forca", keywords:["forca","coragem","fraqueza","cansado"],
+    verses:[
+      {reference:"Josué 1:9", text:"Não to mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o Senhor teu Deus é contigo, por onde quer que andares.", why:"Chamado a ter coragem com a presença de Deus."},
+      {reference:"Filipenses 4:13", text:"Posso todas as coisas em Cristo que me fortalece.", why:"Fonte da força para enfrentar tudo."},
+      {reference:"Isaías 40:31", text:"Mas os que esperam no Senhor renovarão as forças, subirão com asas como águias; correrão, e não se cansarão; caminharão, e não se fatigarão.", why:"Renovação de forças para quem espera em Deus."},
+      {reference:"Efésios 3:16", text:"Para que, segundo as riquezas da sua glória, vos conceda que sejais fortalecidos com poder pelo seu Espírito no homem interior.", why:"Fortalecimento interior pelo Espírito Santo."},
+      {reference:"2 Coríntios 12:9", text:"...a minha graça te basta, porque o meu poder se aperfeiçoa na fraqueza...", why:"O poder de Deus se manifesta na fraqueza humana."}
+    ]},
+  { id:"adulterio", keywords:["adulterio","traicao","trair"],
+    verses:[
+      {reference:"Êxodo 20:14", text:"Não adulterarás.", why:"Um dos dez mandamentos."},
+      {reference:"Mateus 5:28", text:"Eu, porém, vos digo que qualquer que atentar numa mulher para a cobiçar, já em seu coração cometeu adultério com ela.", why:"Jesus amplia o mandamento também ao coração."},
+      {reference:"Provérbios 6:32", text:"Mas o que adultera com uma mulher é falto de entendimento; destrói a sua alma, o que tal faz.", why:"Consequência do adultério para quem o comete."},
+      {reference:"Marcos 10:11-12", text:"E disse-lhes: Qualquer que deixar a sua mulher e casar com outra, adultera contra ela; E se a mulher deixar o seu marido e casar com outro, adultera.", why:"Palavras de Jesus sobre fidelidade no casamento."},
+      {reference:"Hebreus 13:4", text:"Honrado seja entre todos o matrimônio e o leito sem mácula; porém aos fornicadores e adúlteros Deus os julgará.", why:"A seriedade do julgamento de Deus sobre o adultério."}
+    ]},
+  { id:"noe", keywords:["noe","arca de noe","arca","diluvio","arco-iris"],
+    verses:[
+      {reference:"Gênesis 6:14", text:"Faze para ti uma arca de madeira de gofer; farás compartimentos na arca, e a betumarás por dentro e por fora com betume.", why:"Deus instrui Noé a construir a arca."},
+      {reference:"Gênesis 6:19", text:"E de tudo o que vive, de toda a carne, dois de cada espécie, farás entrar na arca, para os conservar vivos contigo; macho e fêmea serão.", why:"A ordem para preservar os animais dentro da arca."},
+      {reference:"Gênesis 7:23", text:"Assim foi destruído todo ser vivente que havia sobre a face da terra... e ficou somente Noé, e os que com ele estavam na arca.", why:"O resultado do dilúvio e a sobrevivência de Noé."},
+      {reference:"Gênesis 8:1", text:"E lembrou-se Deus de Noé, e de todo animal, e de todo gado, que com ele estava na arca; e Deus fez passar um vento sobre a terra, e aquietaram-se as águas.", why:"Deus se lembra de Noé e as águas começam a baixar."},
+      {reference:"Gênesis 9:13", text:"O meu arco tenho posto nas nuvens; ele será por sinal do concerto entre mim e a terra.", why:"O arco-íris como sinal da aliança de Deus com Noé."}
+    ]},
+  { id:"adao-eva", keywords:["eva","adao","adao e eva","queda","serpente","fruto proibido","eden","jardim do eden"],
+    verses:[
+      {reference:"Gênesis 2:22", text:"E da costela que o Senhor Deus tomou do homem, formou uma mulher, e trouxe-a a Adão.", why:"A criação de Eva."},
+      {reference:"Gênesis 3:6", text:"E, vendo a mulher que aquela árvore era boa para se comer, e agradável aos olhos, e árvore desejável para dar entendimento, tomou do seu fruto, e comeu, e deu também a seu marido, e ele comeu.", why:"O momento da queda, quando Eva e Adão comem o fruto proibido."},
+      {reference:"Gênesis 3:13", text:"E disse o Senhor Deus à mulher: Que é isto que fizeste? E disse a mulher: A serpente me enganou, e eu comi.", why:"A serpente enganando Eva."},
+      {reference:"Gênesis 3:23", text:"O Senhor Deus, pois, o lançou fora do jardim do Éden, para lavrar a terra, de que fora tomado.", why:"A consequência: Adão e Eva são expulsos do Éden."},
+      {reference:"1 Timóteo 2:14", text:"E Adão não foi enganado, mas a mulher, sendo enganada, caiu em transgressão.", why:"Referência do Novo Testamento à queda de Eva."}
+    ]},
+  { id:"abraao", keywords:["abraao","promessa a abraao","isaque","fe de abraao"],
+    verses:[
+      {reference:"Gênesis 12:1-2", text:"Ora, o Senhor disse a Abrão: Sai-te da tua terra, e da tua parentela, e da casa de teu pai, para a terra que eu te mostrarei. E far-te-ei uma grande nação.", why:"O chamado de Deus a Abraão e a promessa."},
+      {reference:"Gênesis 15:6", text:"E creu ele no Senhor, e imputou-lhe isto por justiça.", why:"A fé de Abraão contada como justiça."},
+      {reference:"Gênesis 22:2", text:"E disse: Toma agora o teu filho, o teu único filho, Isaque, a quem amas... e oferece-o ali em holocausto.", why:"O teste da fé de Abraão com Isaque."},
+      {reference:"Hebreus 11:8", text:"Pela fé Abraão, sendo chamado, obedeceu, indo para um lugar que havia de receber por herança; e saiu, sem saber para onde ia.", why:"Abraão como exemplo de fé no Novo Testamento."},
+      {reference:"Romanos 4:20-21", text:"E não vacilou na promessa de Deus por incredulidade, antes foi fortificado na fé... estando certíssimo de que o que havia prometido também era poderoso para o fazer.", why:"A confiança inabalável de Abraão na promessa de Deus."}
+    ]},
+  { id:"moises", keywords:["moises","exodo","mar vermelho","dez mandamentos"],
+    verses:[
+      {reference:"Êxodo 3:10", text:"Vem agora, pois, e eu te enviarei a Faraó, para que tireis o meu povo, os filhos de Israel, do Egito.", why:"O chamado de Deus a Moisés."},
+      {reference:"Êxodo 14:21", text:"Então estendeu Moisés a sua mão sobre o mar, e o Senhor fez retirar o mar por forte vento oriental toda aquela noite... e dividiram-se as águas.", why:"A travessia do Mar Vermelho."},
+      {reference:"Êxodo 20:2-3", text:"Eu sou o Senhor teu Deus... Não terás outros deuses diante de mim.", why:"O início dos Dez Mandamentos."},
+      {reference:"Números 12:3", text:"E era o varão Moisés mui manso, mais do que todos os homens que havia sobre a terra.", why:"O caráter de Moisés."},
+      {reference:"Deuteronômio 34:10", text:"E nunca mais se levantou em Israel profeta como Moisés, a quem o Senhor conhecesse face a face.", why:"A singularidade de Moisés como profeta."}
+    ]},
+  { id:"jose-egito", keywords:["jose do egito","jose","tunica de jose","sonhos de jose","potifar"],
+    verses:[
+      {reference:"Gênesis 37:23", text:"E aconteceu que, chegando José a seus irmãos, despiram a José a sua túnica, a túnica de várias cores, que trazia.", why:"Os irmãos de José tirando sua túnica antes de vendê-lo."},
+      {reference:"Gênesis 39:2", text:"E o Senhor era com José, e ele foi um varão próspero.", why:"A presença de Deus com José mesmo no Egito."},
+      {reference:"Gênesis 41:41", text:"Disse mais Faraó a José: Vê aqui te tenho posto sobre toda a terra do Egito.", why:"José elevado a governador do Egito."},
+      {reference:"Gênesis 45:4-5", text:"Chegai-vos a mim... Eu sou José, vosso irmão, a quem vendestes para o Egito. Agora, pois, não vos entristeçais... porque para conservar a vida Deus me enviou adiante de vós.", why:"José se revelando aos irmãos e perdoando-os."},
+      {reference:"Gênesis 50:20", text:"Vós bem intentastes mal contra mim; porém Deus o intentou para bem, para fazer, como se vê neste dia, que se conservasse muita gente com vida.", why:"A conclusão da história: o mal transformado em bem por Deus."}
+    ]},
+  { id:"daniel", keywords:["daniel","cova dos leoes","fornalha"],
+    verses:[
+      {reference:"Daniel 6:16", text:"Então o rei deu ordem, e trouxeram Daniel, e o lançaram na cova dos leões.", why:"Daniel sendo lançado na cova dos leões."},
+      {reference:"Daniel 6:22", text:"O meu Deus enviou o seu anjo, e fechou a boca dos leões, para que não me fizessem dano.", why:"Deus protegendo Daniel na cova."},
+      {reference:"Daniel 1:8", text:"Daniel, porém, propôs no seu coração não se contaminar com a porção das iguarias do rei.", why:"A integridade de Daniel desde jovem."},
+      {reference:"Daniel 3:17", text:"Eis que o nosso Deus, a quem servimos, é poderoso para nos livrar; ele nos livrará da fornalha de fogo ardente.", why:"A fé dos três amigos de Daniel diante da fornalha ardente."},
+      {reference:"Daniel 6:10", text:"Daniel... entrou em sua casa e, com as janelas abertas... três vezes ao dia se punha de joelhos, e orava.", why:"A fidelidade de Daniel na oração, mesmo sob ameaça."}
+    ]},
+  { id:"jonas", keywords:["jonas","baleia","peixe grande","ninive"],
+    verses:[
+      {reference:"Jonas 1:3", text:"Jonas, porém, se levantou para fugir de diante da face do Senhor para Társis.", why:"A fuga de Jonas do chamado de Deus."},
+      {reference:"Jonas 1:17", text:"Ora, o Senhor tinha preparado um grande peixe, para que tragasse a Jonas; e esteve Jonas três dias e três noites nas entranhas do peixe.", why:"Jonas engolido pelo grande peixe."},
+      {reference:"Jonas 2:1", text:"Então Jonas orou ao Senhor seu Deus desde as entranhas do peixe.", why:"A oração de Jonas dentro do peixe."},
+      {reference:"Jonas 3:4-5", text:"Ainda quarenta dias, e Nínive será destruída. E os homens de Nínive creram em Deus, e apregoaram jejum.", why:"O arrependimento de Nínive após a pregação de Jonas."},
+      {reference:"Jonas 4:2", text:"Sabia eu que tu és um Deus clemente, e misericordioso, tardio em irar-te, e grande em beneficência.", why:"O caráter misericordioso de Deus revelado na história de Jonas."}
+    ]},
+  { id:"sansao", keywords:["sansao","dalila","forca de sansao","cabelo de sansao"],
+    verses:[
+      {reference:"Juízes 13:5", text:"Porque o menino será nazireu a Deus desde o ventre... e ele começará a livrar a Israel da mão dos filisteus.", why:"A promessa sobre o nascimento de Sansão."},
+      {reference:"Juízes 16:17", text:"Nunca navalha passou pela minha cabeça, porque desde o ventre de minha mãe sou nazireu de Deus; se viesse a ser rapado, ir-se-ia de mim a minha força.", why:"Sansão revelando o segredo de sua força a Dalila."},
+      {reference:"Juízes 16:19", text:"E ela lhe fez rapar as sete tranças da sua cabeça... e a sua força se retirou dele.", why:"A perda da força de Sansão."},
+      {reference:"Juízes 16:28", text:"Então clamou Sansão ao Senhor, e disse: Senhor Jeová, lembra-te agora de mim, e fortalece-me agora só esta vez.", why:"A última oração de Sansão pedindo força."},
+      {reference:"Hebreus 11:32", text:"Que mais direi? Pois me faltará tempo, se eu contar de Gideão, de Baraque, de Sansão, de Jefté.", why:"Sansão listado entre os heróis da fé."}
+    ]},
+  { id:"salomao", keywords:["salomao","sabedoria de salomao","templo de salomao"],
+    verses:[
+      {reference:"1 Reis 3:9", text:"Dá, pois, a teu servo um coração entendido, para julgar a teu povo, para que prudentemente discirna entre o bem e o mal.", why:"O pedido de sabedoria de Salomão a Deus."},
+      {reference:"1 Reis 3:12", text:"Eis que te dei um coração tão sábio e entendido, que antes de ti teu igual não houve, e depois de ti teu igual se não levantará.", why:"Deus concedendo a Salomão uma sabedoria sem igual."},
+      {reference:"1 Reis 6:38", text:"E assim foi Salomão sete anos a edificar a casa.", why:"A construção do templo de Salomão."},
+      {reference:"Provérbios 3:5", text:"Confia no Senhor de todo o teu coração, e não te estribes no teu próprio entendimento.", why:"Um dos muitos provérbios atribuídos a Salomão."},
+      {reference:"Eclesiastes 1:2", text:"Vaidade de vaidades, diz o pregador, vaidade de vaidades! tudo é vaidade.", why:"A reflexão de Salomão sobre o sentido da vida."}
+    ]},
+  { id:"jo", keywords:["jo","sofrimento de jo","paciencia de jo","provacoes de jo"],
+    verses:[
+      {reference:"Jó 1:21", text:"O Senhor o deu, e o Senhor o tomou; bendito seja o nome do Senhor.", why:"A reação de Jó diante da perda de tudo."},
+      {reference:"Jó 2:10", text:"Receberíamos o bem de Deus, e não receberíamos o mal? Em tudo isto não pecou Jó com os seus lábios.", why:"A integridade de Jó em meio ao sofrimento."},
+      {reference:"Jó 19:25", text:"Porque eu sei que o meu Redentor vive, e que estará em pé no último dia sobre a terra.", why:"A esperança de Jó em meio à dor."},
+      {reference:"Jó 42:10", text:"E tornou o Senhor a suceder bem a Jó... e o Senhor acrescentou a Jó outro tanto, em dobro, a tudo quanto tivera.", why:"A restauração de Jó ao final da provação."},
+      {reference:"Tiago 5:11", text:"Já ouvistes qual foi a paciência de Jó, e vistes o fim que o Senhor lhe deu; porque o Senhor é muito misericordioso e piedoso.", why:"Referência do Novo Testamento à paciência de Jó."}
+    ]},
+  { id:"maria-mae-jesus", keywords:["maria mae de jesus","anunciacao","nascimento de jesus","maria"],
+    verses:[
+      {reference:"Lucas 1:30-31", text:"Não temas, Maria, porque achaste graça diante de Deus. E eis que conceberás no teu ventre, e darás à luz um filho, e pôr-lhe-ás o nome de JESUS.", why:"O anúncio do anjo Gabriel a Maria."},
+      {reference:"Lucas 1:38", text:"E disse Maria: Eis aqui a serva do Senhor; cumpra-se em mim segundo a tua palavra.", why:"A resposta de fé e submissão de Maria."},
+      {reference:"Lucas 2:7", text:"E teve o seu filho primogênito, e envolveu-o em panos, e deitou-o numa manjedoura.", why:"O nascimento de Jesus."},
+      {reference:"Lucas 2:19", text:"Mas Maria guardava todas estas coisas, conferindo-as em seu coração.", why:"A reflexão silenciosa de Maria diante dos acontecimentos."},
+      {reference:"João 19:26-27", text:"Disse a sua mãe: Mulher, eis aí o teu filho. Depois disse ao discípulo: Eis aí tua mãe.", why:"Jesus cuidando de Maria mesmo na cruz."}
+    ]},
+  { id:"filho-prodigo", keywords:["filho prodigo","parabola do filho prodigo"],
+    verses:[
+      {reference:"Lucas 15:12-13", text:"Dá-me a parte da fazenda que me pertence... e, ajuntando tudo, partiu para uma terra remota, e ali desperdiçou a sua fazenda, vivendo dissolutamente.", why:"O filho mais novo pedindo sua herança e partindo."},
+      {reference:"Lucas 15:17-18", text:"E, tornando em si, disse: Levantar-me-ei, e irei para meu pai, e dir-lhe-ei: Pai, pequei contra o céu e perante ti.", why:"O momento em que o filho decide voltar."},
+      {reference:"Lucas 15:20", text:"E, levantando-se, foi para seu pai. E, quando ainda estava longe, viu-o seu pai, e, movido de íntima compaixão, correu, e lançou-se-lhe ao pescoço, e o beijou.", why:"A recepção do pai, cheia de misericórdia."},
+      {reference:"Lucas 15:24", text:"Porque este meu filho estava morto, e reviveu; e tinha-se perdido, e foi achado. E começaram a regozijar-se.", why:"A alegria do pai pelo retorno do filho."},
+      {reference:"Lucas 15:32", text:"Era justo alegrarmo-nos e folgarmos, porque este teu irmão era morto, e reviveu; e tinha-se perdido, e foi achado.", why:"O convite à alegria e reconciliação da família."}
+    ]},
+  { id:"judas-iscariotes", keywords:["judas iscariotes","judas","traicao de jesus"],
+    verses:[
+      {reference:"Mateus 26:14-15", text:"Um dos doze, chamado Judas Iscariotes, foi ter com os príncipes dos sacerdotes, e disse: Que me quereis dar, e eu vo-lo entregarei? E eles lhe pesaram trinta moedas de prata.", why:"O acordo de Judas para entregar Jesus."},
+      {reference:"Mateus 26:49", text:"E logo, chegando-se a Jesus, disse: Salve, Rabi. E o beijou.", why:"O sinal do beijo que entregou Jesus."},
+      {reference:"Mateus 27:3-4", text:"Então Judas... arrependido, restituiu as trinta moedas de prata... Pequei, traindo o sangue inocente.", why:"O arrependimento tardio de Judas."},
+      {reference:"Lucas 22:48", text:"E disse-lhe Jesus: Judas, com um beijo trais o Filho do homem?", why:"A pergunta de Jesus a Judas no momento da traição."},
+      {reference:"Atos 1:18", text:"Ora, este adquiriu um campo com o galardão da iniquidade.", why:"O desfecho trágico da vida de Judas."}
+    ]},
+  { id:"pedro", keywords:["pedro","apostolo pedro","negacao de pedro","simao pedro"],
+    verses:[
+      {reference:"Mateus 4:19", text:"E disse-lhes: Vinde após mim, e eu vos farei pescadores de homens.", why:"O chamado de Jesus a Pedro."},
+      {reference:"Mateus 14:29", text:"E, descendo Pedro do barco, andou sobre as águas para ir ter com Jesus.", why:"Pedro andando sobre a água."},
+      {reference:"Mateus 16:16", text:"Tu és o Cristo, o Filho do Deus vivo.", why:"A confissão de fé de Pedro."},
+      {reference:"Lucas 22:61-62", text:"E, saindo Pedro para fora, chorou amargamente.", why:"O arrependimento de Pedro após negar Jesus três vezes."},
+      {reference:"João 21:17", text:"Apascenta as minhas ovelhas.", why:"Jesus restaurando Pedro depois da ressurreição."}
+    ]},
+  { id:"paulo", keywords:["paulo","apostolo paulo","conversao de paulo","caminho de damasco","saulo"],
+    verses:[
+      {reference:"Atos 9:3-4", text:"Eis que subitamente o cercou um resplendor de luz do céu; e, caindo em terra, ouviu uma voz que lhe dizia: Saulo, Saulo, por que me persegues?", why:"A conversão de Paulo no caminho de Damasco."},
+      {reference:"Atos 9:18", text:"E logo lhe caíram dos olhos como que umas escamas, e recuperou a vista; e, levantando-se, foi batizado.", why:"A restauração da visão de Paulo e seu batismo."},
+      {reference:"Filipenses 3:8", text:"Tenho também por perda todas as coisas, pela excelência do conhecimento de Cristo Jesus, meu Senhor.", why:"A nova prioridade de vida de Paulo após conhecer a Cristo."},
+      {reference:"2 Timóteo 4:7", text:"Combati o bom combate, acabei a carreira, guardei a fé.", why:"As últimas palavras de Paulo refletindo sobre sua vida."},
+      {reference:"Atos 20:24", text:"Contanto que cumpra com alegria a minha carreira, e o ministério que recebi do Senhor Jesus, para dar testemunho do evangelho da graça de Deus.", why:"O propósito de vida que moveu Paulo."}
+    ]},
+  { id:"luz-trevas", keywords:["escuridao","trevas","escuro","luz","medo do escuro"],
+    verses:[
+      {reference:"João 1:5", text:"E a luz resplandece nas trevas, e as trevas não a compreenderam.", why:"A luz de Cristo que não é vencida pela escuridão."},
+      {reference:"João 8:12", text:"Eu sou a luz do mundo; quem me segue não andará em trevas, mas terá a luz da vida.", why:"Jesus se apresentando como luz para quem o segue."},
+      {reference:"Salmos 27:1", text:"O Senhor é a minha luz e a minha salvação; a quem temerei?", why:"Deus como luz que afasta o medo."},
+      {reference:"Salmos 139:11-12", text:"Se disser: Certamente que as trevas me encobrirão... nem ainda as trevas me encobrem de ti; mas a noite resplandece como o dia.", why:"Nem a escuridão esconde alguém da presença de Deus."},
+      {reference:"1 João 1:5", text:"...Deus é luz, e não há nele trevas nenhumas.", why:"A natureza de Deus como luz, sem escuridão."}
+    ]},
+  { id:"morte-vida-eterna", keywords:["morte","vida eterna","medo da morte"],
+    verses:[
+      {reference:"João 11:25", text:"Disse-lhe Jesus: Eu sou a ressurreição e a vida; quem crê em mim, ainda que esteja morto, viverá.", why:"Jesus como esperança diante da morte."},
+      {reference:"1 Coríntios 15:55", text:"Onde está, ó morte, o teu aguilhão? Onde está, ó inferno, a tua vitória?", why:"O triunfo sobre a morte pela ressurreição de Cristo."},
+      {reference:"João 3:16", text:"...para que todo aquele que nele crê não pereça, mas tenha a vida eterna.", why:"A promessa da vida eterna através da fé em Jesus."},
+      {reference:"Salmos 23:4", text:"Ainda que eu andasse pelo vale da sombra da morte, não temeria mal algum, porque tu estás comigo.", why:"Confiança na presença de Deus mesmo diante da morte."},
+      {reference:"Apocalipse 21:4", text:"E Deus limpará de seus olhos toda lágrima; e não haverá mais morte, nem pranto, nem clamor, nem dor.", why:"A promessa de um futuro sem morte."}
+    ]},
+  { id:"ceu", keywords:["ceu","paraiso","reino dos ceus"],
+    verses:[
+      {reference:"João 14:2-3", text:"Na casa de meu Pai há muitas moradas... vou preparar-vos lugar.", why:"Jesus preparando um lugar no céu para os que creem."},
+      {reference:"Apocalipse 21:4", text:"...e não haverá mais morte, nem pranto, nem clamor, nem dor.", why:"A descrição do céu sem sofrimento."},
+      {reference:"Mateus 6:20", text:"Mas ajuntai tesouros no céu... onde não há traça nem ferrugem que os consuma.", why:"Instrução para investir no que é eterno."},
+      {reference:"Filipenses 3:20", text:"Mas a nossa cidade está nos céus, de onde também esperamos o Salvador, o Senhor Jesus Cristo.", why:"A perspectiva do céu como verdadeira cidadania do cristão."},
+      {reference:"Lucas 23:43", text:"...Em verdade te digo que hoje estarás comigo no paraíso.", why:"A promessa de Jesus ao ladrão na cruz."}
+    ]},
+  { id:"ressurreicao", keywords:["ressurreicao","jesus ressuscitou","tumulo vazio","pascoa"],
+    verses:[
+      {reference:"Mateus 28:6", text:"Não está aqui, porque já ressuscitou, como havia dito.", why:"O anúncio do anjo sobre a ressurreição de Jesus."},
+      {reference:"Lucas 24:6", text:"Não está aqui, mas já ressuscitou. Lembrai-vos como vos falou.", why:"A confirmação da ressurreição às mulheres no túmulo."},
+      {reference:"João 20:19", text:"...veio Jesus, e pôs-se no meio, e disse-lhes: Paz seja convosco.", why:"Jesus aparecendo aos discípulos após ressuscitar."},
+      {reference:"1 Coríntios 15:20", text:"Mas de fato Cristo ressuscitou dos mortos, e foi feito as primícias dos que dormem.", why:"A ressurreição de Cristo como garantia da ressurreição futura."},
+      {reference:"Romanos 6:4", text:"...assim como Cristo foi ressuscitado dentre os mortos... andemos nós também em novidade de vida.", why:"O significado da ressurreição para a vida cristã."}
+    ]},
+  { id:"espirito-santo", keywords:["espirito santo","dons espirituais","fruto do espirito"],
+    verses:[
+      {reference:"João 14:26", text:"Mas aquele Consolador, o Espírito Santo, que o Pai enviará em meu nome, esse vos ensinará todas as coisas.", why:"A promessa do Espírito Santo como Consolador."},
+      {reference:"Atos 2:4", text:"E todos foram cheios do Espírito Santo, e começaram a falar em outras línguas.", why:"O derramamento do Espírito Santo no Pentecostes."},
+      {reference:"Gálatas 5:22-23", text:"Mas o fruto do Espírito é: amor, gozo, paz, longanimidade, benignidade, bondade, fé, mansidão, temperança.", why:"As qualidades produzidas pelo Espírito Santo na vida."},
+      {reference:"Romanos 8:26", text:"E da mesma maneira também o Espírito ajuda as nossas fraquezas... o Espírito mesmo intercede por nós com gemidos inexprimíveis.", why:"O Espírito Santo ajudando na oração."},
+      {reference:"1 Coríntios 6:19", text:"...o vosso corpo é o templo do Espírito Santo, que habita em vós.", why:"O corpo do crente como morada do Espírito Santo."}
+    ]},
+  { id:"igreja", keywords:["igreja","corpo de cristo","comunhao","unidade da igreja"],
+    verses:[
+      {reference:"Mateus 16:18", text:"...sobre esta pedra edificarei a minha igreja, e as portas do inferno não prevalecerão contra ela.", why:"A promessa de Jesus sobre a igreja."},
+      {reference:"Atos 2:42", text:"E perseveravam na doutrina dos apóstolos, e na comunhão, e no partir do pão, e nas orações.", why:"As práticas da igreja primitiva."},
+      {reference:"1 Coríntios 12:27", text:"Ora, vós sois o corpo de Cristo, e seus membros em particular.", why:"A igreja como corpo de Cristo, cada um com sua parte."},
+      {reference:"Hebreus 10:25", text:"Não deixando a nossa congregação, como é costume de alguns... antes, exortando-nos uns aos outros.", why:"A importância de não abandonar a reunião da igreja."},
+      {reference:"Efésios 4:3", text:"Procurando guardar a unidade do Espírito pelo vínculo da paz.", why:"O chamado à unidade dentro da igreja."}
+    ]},
+  { id:"evangelho", keywords:["evangelho","boas novas","salvacao pela fe"],
+    verses:[
+      {reference:"Marcos 16:15", text:"...Ide por todo o mundo, pregai o evangelho a toda criatura.", why:"A grande comissão de pregar o evangelho."},
+      {reference:"Romanos 1:16", text:"Porque não me envergonho do evangelho de Cristo, pois é o poder de Deus para salvação de todo aquele que crê.", why:"O poder do evangelho para salvação."},
+      {reference:"1 Coríntios 15:3-4", text:"...que Cristo morreu por nossos pecados, segundo as Escrituras; e que foi sepultado, e que ressuscitou ao terceiro dia.", why:"O resumo do evangelho segundo Paulo."},
+      {reference:"Efésios 2:8-9", text:"Porque pela graça sois salvos, por meio da fé; e isto não vem de vós, é dom de Deus.", why:"A salvação como dom recebido pela fé, não pelo mérito."},
+      {reference:"João 3:16", text:"Porque Deus amou o mundo de tal maneira que deu o seu Filho unigênito.", why:"O coração do evangelho: o amor de Deus revelado em Jesus."}
+    ]},
+  { id:"torre-babel", keywords:["torre de babel","babel","confusao das linguas"],
+    verses:[
+      {reference:"Gênesis 11:4", text:"...Vamos, edifiquemos para nós uma cidade e uma torre cujo cume toque nos céus, e façamo-nos um nome.", why:"A intenção orgulhosa por trás da construção da torre."},
+      {reference:"Gênesis 11:7", text:"Eia, desçamos, e confundamos ali a sua língua, para que um não entenda a língua do outro.", why:"Deus confundindo as línguas dos construtores."},
+      {reference:"Gênesis 11:8", text:"Assim o Senhor os espalhou dali sobre a face de toda a terra; e cessaram de edificar a cidade.", why:"O resultado: o povo espalhado e a obra interrompida."},
+      {reference:"Gênesis 11:9", text:"Por isso se chamou o seu nome Babel, porquanto ali confundiu o Senhor a língua de toda a terra.", why:"A origem do nome Babel."},
+      {reference:"Atos 2:6", text:"...cada um os ouvia falar na sua própria língua.", why:"Contraste no Pentecostes: as línguas voltam a permitir entendimento."}
+    ]},
+  { id:"sodoma-gomorra", keywords:["sodoma e gomorra","sodoma","gomorra","lo"],
+    verses:[
+      {reference:"Gênesis 18:20", text:"Então disse o Senhor: Porquanto o clamor de Sodoma e Gomorra se tem multiplicado, e porquanto o seu pecado se tem agravado muito.", why:"A gravidade do pecado de Sodoma e Gomorra diante de Deus."},
+      {reference:"Gênesis 19:24", text:"Fez, pois, o Senhor chover do céu sobre Sodoma e sobre Gomorra enxofre e fogo, do Senhor.", why:"A destruição de Sodoma e Gomorra."},
+      {reference:"Gênesis 19:26", text:"E a mulher de Ló olhou para trás, e ficou convertida numa estátua de sal.", why:"A mulher de Ló transformada em estátua de sal."},
+      {reference:"Gênesis 19:29", text:"...lembrou-se Deus de Abraão, e enviou Ló do meio da destruição.", why:"Deus poupando Ló por causa de Abraão."},
+      {reference:"2 Pedro 2:6", text:"E condenando à destruição as cidades de Sodoma e Gomorra... pondo-as por exemplo aos que vivessem impiamente.", why:"A referência do Novo Testamento a Sodoma como advertência."}
+    ]},
+  { id:"davi-golias", keywords:["davi e golias","golias","rei davi","davi"],
+    verses:[
+      {reference:"1 Samuel 16:13", text:"Então Samuel tomou o chifre do azeite, e o ungiu no meio de seus irmãos; e desde aquele dia em diante o Espírito do Senhor se apoderou de Davi.", why:"A unção de Davi como futuro rei."},
+      {reference:"1 Samuel 17:45", text:"...Tu vens a mim com espada, e com lança, e com escudo; porém eu venho a ti em nome do Senhor dos Exércitos.", why:"A confiança de Davi antes de enfrentar Golias."},
+      {reference:"1 Samuel 17:49", text:"E, metendo Davi a mão no alforge, tomou dali uma pedra, e com a funda a atirou, e feriu o filisteu na testa.", why:"O momento em que Davi derrota Golias."},
+      {reference:"2 Samuel 7:16", text:"...a tua casa e o teu reino serão firmados para sempre diante de ti; teu trono será firme para sempre.", why:"A promessa de Deus a Davi sobre seu reinado."},
+      {reference:"Salmos 23:1", text:"O Senhor é o meu pastor, nada me faltará.", why:"Um dos salmos mais conhecidos escritos por Davi."}
+    ]},
+  { id:"pentecostes", keywords:["pentecostes","derramamento do espirito"],
+    verses:[
+      {reference:"Atos 2:1-2", text:"E, cumprindo-se o dia de Pentecostes, estavam todos concordemente no mesmo lugar. E de repente veio do céu um som, como de um vento veemente e impetuoso.", why:"O início do Pentecostes."},
+      {reference:"Atos 2:3", text:"E foram vistas por eles línguas repartidas, como que de fogo, as quais pousaram sobre cada um deles.", why:"O sinal visível do Espírito Santo sobre os discípulos."},
+      {reference:"Atos 2:4", text:"E todos foram cheios do Espírito Santo, e começaram a falar em outras línguas, conforme o Espírito Santo lhes concedia que falassem.", why:"O derramamento do Espírito Santo sobre todos."},
+      {reference:"Atos 2:41", text:"De sorte que foram batizados os que de bom grado receberam a sua palavra; e naquele dia agregaram-se quase três mil almas.", why:"O crescimento da igreja logo após o Pentecostes."},
+      {reference:"Atos 1:8", text:"Mas recebereis a virtude do Espírito Santo, que há de vir sobre vós; e ser-me-eis testemunhas.", why:"A promessa de poder para testemunhar, cumprida no Pentecostes."}
+    ]},
+  { id:"mentira-verdade", keywords:["mentira","verdade","mentir","falsidade"],
+    verses:[
+      {reference:"Êxodo 20:16", text:"Não dirás falso testemunho contra o teu próximo.", why:"Um dos dez mandamentos, contra o falso testemunho."},
+      {reference:"Provérbios 12:22", text:"Os lábios mentirosos são abomináveis ao Senhor, mas os que praticam a verdade são o seu deleite.", why:"O contraste entre mentira e verdade diante de Deus."},
+      {reference:"João 8:44", text:"...Quando ele profere mentira, fala do que lhe é próprio, porque é mentiroso, e pai da mentira.", why:"A origem espiritual da mentira segundo Jesus."},
+      {reference:"João 14:6", text:"Disse-lhe Jesus: Eu sou o caminho, e a verdade, e a vida.", why:"Jesus se identificando como a própria verdade."},
+      {reference:"Efésios 4:25", text:"Pelo que deixai a mentira, e falai a verdade cada um com o seu próximo.", why:"Instrução prática para viver na verdade."}
+    ]},
+  { id:"batismo", keywords:["batismo","batizar","ser batizado"],
+    verses:[
+      {reference:"Mateus 3:16", text:"E, sendo Jesus batizado, saiu logo da água, e eis que se lhe abriram os céus.", why:"O batismo de Jesus por João."},
+      {reference:"Mateus 28:19", text:"...ide, fazei discípulos de todas as nações, batizando-os em nome do Pai, e do Filho, e do Espírito Santo.", why:"A ordem de Jesus para batizar os discípulos."},
+      {reference:"Atos 2:38", text:"...Arrependei-vos, e cada um de vós seja batizado em nome de Jesus Cristo, para perdão dos pecados.", why:"O chamado ao batismo após o arrependimento."},
+      {reference:"Romanos 6:4", text:"Fomos pois sepultados com ele pelo batismo na morte... para que também andemos nós em novidade de vida.", why:"O significado simbólico do batismo."},
+      {reference:"Atos 8:36-38", text:"...eis aqui água; que impede que eu seja batizado? ...e desceram ambos à água... e o batizou.", why:"O exemplo do batismo do eunuco etíope."}
+    ]},
+  { id:"preguica", keywords:["preguica","preguicoso","ociosidade"],
+    verses:[
+      {reference:"Provérbios 6:6", text:"Vai-te à formiga, ó preguiçoso, considera os seus caminhos, e sê sábio.", why:"O convite a aprender com o trabalho da formiga."},
+      {reference:"Provérbios 13:4", text:"A alma do preguiçoso deseja, e coisa nenhuma alcança, mas a alma dos diligentes se fará rica.", why:"O contraste entre preguiça e diligência."},
+      {reference:"Provérbios 20:4", text:"O preguiçoso não lavra por causa do inverno; pedirá pois na sega, e nada receberá.", why:"As consequências de não trabalhar no tempo certo."},
+      {reference:"2 Tessalonicenses 3:10", text:"...se alguém não quer trabalhar, também não coma.", why:"O princípio bíblico sobre trabalho e sustento."},
+      {reference:"Provérbios 12:24", text:"A mão dos diligentes dominará, mas a mão negligente será tributária.", why:"O resultado prático da diligência versus a negligência."}
+    ]},
+  { id:"leao", keywords:["leao","leoes","leaozinho"],
+    verses:[
+      {reference:"Daniel 6:22", text:"O meu Deus enviou o seu anjo, e fechou a boca aos leões, e eles não me fizeram dano; porque diante dele se achou em mim inocência, e também contra ti, ó rei, não cometi delito.", why:"Daniel protegido por Deus na cova dos leões."},
+      {reference:"1 Pedro 5:8", text:"Sede sóbrios; vigiai; porque o diabo, vosso adversário, anda em derredor, bramando como leão, buscando a quem possa tragar.", why:"O leão como imagem do adversário que ronda buscando a quem devorar."},
+      {reference:"Apocalipse 5:5", text:"E disse-me um dos anciãos: Não chores; eis aqui o Leão da tribo de Judá, a Raiz de Davi, que venceu, para abrir o livro, e desatar os seus sete selos.", why:"Jesus Cristo identificado como o Leão da tribo de Judá."},
+      {reference:"Provérbios 28:1", text:"Fogem os ímpios, sem que ninguém os persiga, mas os justos são ousados como o leão jovem.", why:"O leão como símbolo de coragem e ousadia do justo."},
+      {reference:"Juízes 14:6", text:"E o Espírito do Senhor se apossou dele; e ele despedaçou o leão, como quem despedaça um cabrito, sem ter nada na sua mão; porém não declarou a seu pai nem a sua mãe o que tinha feito.", why:"Sansão vencendo um leão com a força dada pelo Espírito do Senhor."},
+      {reference:"Salmos 91:13", text:"Pisarás o leão e a áspide; calcarás aos pés o filho do leão e a serpente.", why:"Promessa de vitória e proteção sobre o perigo representado pelo leão."}
+    ]},
+  { id:"luz", keywords:["luz","trevas","escuridao"],
+    verses:[
+      {reference:"João 8:12", text:"Falou-lhes, pois, Jesus outra vez, dizendo: Eu sou a luz do mundo; quem me segue não andará em trevas, mas terá a luz da vida.", why:"Jesus se apresentando como a luz do mundo."},
+      {reference:"Gênesis 1:3", text:"E disse Deus: Haja luz. E houve luz.", why:"A primeira palavra criadora de Deus."},
+      {reference:"Salmos 27:1", text:"O Senhor é a minha luz e a minha salvação; a quem temerei? O Senhor é a força da minha vida; de quem me recearei?", why:"Deus como luz que afasta o medo."},
+      {reference:"Mateus 5:14", text:"Vós sois a luz do mundo; não se pode esconder uma cidade edificada sobre um monte.", why:"O chamado dos discípulos a serem luz."},
+      {reference:"1 João 1:5", text:"E esta é a mensagem que dele ouvimos, e vos anunciamos: que Deus é luz, e não há nele treva nenhuma.", why:"A natureza de Deus descrita como luz pura."}
+    ]},
+  { id:"paz", keywords:["paz","pacificador","tranquilidade"],
+    verses:[
+      {reference:"João 14:27", text:"Deixo-vos a paz, a minha paz vos dou; não vo-la dou como o mundo a dá. Não se turbe o vosso coração, nem se atemorize.", why:"A paz que Jesus oferece, diferente da paz do mundo."},
+      {reference:"Filipenses 4:7", text:"E a paz de Deus, que excede todo o entendimento, guardará os vossos corações e os vossos sentimentos em Cristo Jesus.", why:"A paz de Deus guardando o coração."},
+      {reference:"Isaías 26:3", text:"Tu conservarás em paz aquele cuja mente está firme em ti; porque ele confia em ti.", why:"Paz para quem mantém o pensamento firme em Deus."},
+      {reference:"Mateus 5:9", text:"Bem-aventurados os pacificadores, porque eles serão chamados filhos de Deus.", why:"Bênção sobre quem promove a paz."},
+      {reference:"Romanos 12:18", text:"Se for possível, quanto estiver em vós, tende paz com todos os homens.", why:"Instrução prática para buscar a paz nas relações."}
+    ]},
+  { id:"pastor-ovelhas", keywords:["pastor","ovelha","ovelhas","rebanho"],
+    verses:[
+      {reference:"Salmos 23:1", text:"O Senhor é o meu pastor, nada me faltará.", why:"O salmo mais conhecido sobre Deus como pastor."},
+      {reference:"João 10:11", text:"Eu sou o bom Pastor; o bom Pastor dá a sua vida pelas ovelhas.", why:"Jesus se identificando como o bom Pastor."},
+      {reference:"João 10:27", text:"As minhas ovelhas ouvem a minha voz, e eu conheço-as, e elas me seguem.", why:"A relação entre o Pastor e quem o segue."},
+      {reference:"Lucas 15:4", text:"Que homem dentre vós, que possuindo cem ovelhas, e perdendo uma delas, não deixa as noventa e nove no deserto, e vai após a perdida, até que a ache?", why:"A parábola da ovelha perdida."},
+      {reference:"Isaías 53:6", text:"Todos nós andávamos desgarrados como ovelhas; cada um se desviava pelo seu caminho; mas o Senhor fez cair sobre ele a iniquidade de nós todos.", why:"Profecia sobre Jesus levando o desvio de todos."}
+    ]},
+  { id:"misericordia", keywords:["misericordia","compaixao","piedade"],
+    verses:[
+      {reference:"Lamentações 3:22-23", text:"As misericórdias do Senhor são a causa de não sermos consumidos, porque as suas misericórdias não têm fim; Novas são cada manhã; grande é a tua fidelidade.", why:"A misericórdia de Deus renovada a cada manhã."},
+      {reference:"Salmos 103:8", text:"Misericordioso e piedoso é o Senhor; longânimo e grande em benignidade.", why:"A natureza misericordiosa de Deus."},
+      {reference:"Mateus 5:7", text:"Bem-aventurados os misericordiosos, porque eles alcançarão misericórdia.", why:"A promessa para quem pratica a misericórdia."},
+      {reference:"Tiago 2:13", text:"Porque juízo sem misericórdia se fará àquele que não fizer misericórdia; e a misericórdia gloría-se contra o juízo.", why:"A relação entre misericórdia e julgamento."},
+      {reference:"Oséias 6:6", text:"Porque eu quero misericórdia, e não sacrifício; e o conhecimento de Deus, mais do que holocaustos.", why:"Deus valoriza mais a misericórdia do que o ritual."}
+    ]},
+  { id:"obediencia", keywords:["obediencia","obedecer","desobediencia"],
+    verses:[
+      {reference:"1 Samuel 15:22", text:"...Eis que o obedecer é melhor do que o sacrificar; e o atender melhor é do que a gordura de carneiros.", why:"A obediência valorizada acima do sacrifício ritual."},
+      {reference:"João 14:15", text:"Se me amais, guardai os meus mandamentos.", why:"A obediência como expressão do amor a Jesus."},
+      {reference:"Atos 5:29", text:"...Antes é necessário obedecer a Deus do que aos homens.", why:"A prioridade da obediência a Deus."},
+      {reference:"Efésios 6:1", text:"Vós, filhos, sede obedientes a vossos pais no Senhor, porque isto é justo.", why:"Instrução sobre obediência aos pais."},
+      {reference:"Josué 1:8", text:"Não se aparte da tua boca o livro desta lei; antes medita nele dia e noite, para que tenhas cuidado de fazer conforme tudo quanto nele está escrito; porque então farás prosperar o teu caminho, e todo o bom êxito terás.", why:"A prosperidade ligada à obediência à palavra."}
+    ]},
+  { id:"inimigos", keywords:["inimigos","inimigo","perseguicao"],
+    verses:[
+      {reference:"Mateus 5:44", text:"Eu, porém, vos digo: Amai a vossos inimigos, bendizei os que vos maldizem, fazei bem aos que vos odeiam, e orai pelos que vos maltratam e vos perseguem.", why:"A instrução de Jesus para amar os inimigos."},
+      {reference:"Romanos 12:20", text:"Portanto, se o teu inimigo tiver fome, dá-lhe de comer; se tiver sede, dá-lhe de beber...", why:"Como tratar praticamente um inimigo."},
+      {reference:"Salmos 23:5", text:"Preparas uma mesa perante mim na presença dos meus inimigos, unges a minha cabeça com óleo, o meu cálice transborda.", why:"A provisão de Deus mesmo diante da oposição."},
+      {reference:"Provérbios 16:7", text:"Sendo os caminhos do homem agradáveis ao Senhor, faz que até os seus inimigos tenham paz com ele.", why:"Deus podendo pacificar até os inimigos."},
+      {reference:"Lucas 6:27-28", text:"Mas a vós, que ouvis, digo: Amai a vossos inimigos, fazei bem aos que vos odeiam, Bendizei os que vos maldizem, e orai pelos que vos maltratam.", why:"Reforço do ensino de Jesus sobre amar quem se opõe."}
+    ]},
+  { id:"anjos", keywords:["anjos","anjo"],
+    verses:[
+      {reference:"Salmos 91:11", text:"Porque aos seus anjos dará ordem a teu respeito, para te guardarem em todos os teus caminhos.", why:"Os anjos enviados para guardar quem confia em Deus."},
+      {reference:"Hebreus 1:14", text:"Não são todos eles espíritos ministradores, enviados para servir a favor daqueles que hão de herdar a salvação?", why:"O papel dos anjos como servos enviados por Deus."},
+      {reference:"Lucas 2:10", text:"E o anjo lhes disse: Não temais, eis aqui vos trago novas de grande alegria, que será para todo o povo.", why:"O anúncio angelical do nascimento de Jesus."},
+      {reference:"Mateus 18:10", text:"Vede não desprezeis algum destes pequeninos, porque eu vos digo que os seus anjos nos céus sempre veem a face de meu Pai, que está nos céus.", why:"Anjos associados à proteção dos pequeninos."},
+      {reference:"Daniel 6:22", text:"O meu Deus enviou o seu anjo, e fechou a boca aos leões, e eles não me fizeram dano...", why:"Um anjo enviado para proteger Daniel."}
+    ]},
+  { id:"arrependimento", keywords:["arrependimento","arrepender","arependido"],
+    verses:[
+      {reference:"Atos 3:19", text:"Arrependei-vos, pois, e convertei-vos, para que sejam apagados os vossos pecados, e venham assim os tempos do refrigério, pela presença do Senhor.", why:"O chamado ao arrependimento ligado ao apagamento dos pecados."},
+      {reference:"2 Coríntios 7:10", text:"Porque a tristeza segundo Deus opera arrependimento para a salvação, do qual não haverá que se arrepender; mas a tristeza do mundo opera a morte.", why:"A diferença entre a tristeza que gera arrependimento e a que gera morte."},
+      {reference:"Salmos 51:17", text:"Os sacrifícios para Deus são o espírito quebrantado; a um coração quebrantado e contrito não desprezarás, ó Deus.", why:"O arrependimento sincero descrito como coração quebrantado."},
+      {reference:"Lucas 15:7", text:"Digo-vos que assim haverá alegria no céu por um pecador que se arrepende, mais do que por noventa e nove justos que não necessitam de arrependimento.", why:"A alegria no céu por causa de um pecador arrependido."},
+      {reference:"1 João 1:9", text:"Se confessarmos os nossos pecados, ele é fiel e justo para nos perdoar os pecados, e nos purificar de toda a injustiça.", why:"A promessa de perdão para quem confessa e se arrepende."}
+    ]}
+];
+
+function normalize(str){
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+// ---------- Bíblia completa (carregada de ./bible.json) ----------
+let BIBLE = null;          // { books: [ { n, c: [ [verseTexts...], ... ] } ] }
+let BIBLE_READY = false;
+let BOOK_ALIASES = null;   // normalizedAlias -> book index
+
+const EXTRA_ALIASES = {
+  'genesis':'genesis','gn':'genesis',
+  'exodo':'exodo','ex':'exodo',
+  'levitico':'levitico','lv':'levitico',
+  'numeros':'numeros','nm':'numeros',
+  'deuteronomio':'deuteronomio','dt':'deuteronomio',
+  'josue':'josue','js':'josue',
+  'juizes':'juizes','jz':'juizes','jdg':'juizes',
+  'rute':'rute','rt':'rute',
+  '1 samuel':'1 samuel','1sm':'1 samuel','i samuel':'1 samuel',
+  '2 samuel':'2 samuel','2sm':'2 samuel','ii samuel':'2 samuel',
+  '1 reis':'1 reis','1rs':'1 reis','i reis':'1 reis',
+  '2 reis':'2 reis','2rs':'2 reis','ii reis':'2 reis',
+  '1 cronicas':'1 cronicas','1cr':'1 cronicas',
+  '2 cronicas':'2 cronicas','2cr':'2 cronicas',
+  'esdras':'esdras','ed':'esdras',
+  'neemias':'neemias','ne':'neemias',
+  'ester':'ester','et':'ester',
+  'jo':'jo', // ambiguous alone, resolved by context below
+  'salmo':'salmos','salmos':'salmos','sl':'salmos',
+  'proverbios':'proverbios','pv':'proverbios',
+  'eclesiastes':'eclesiastes','ec':'eclesiastes',
+  'cantares':'cantares de salomao','cantico dos canticos':'cantares de salomao','ct':'cantares de salomao',
+  'isaias':'isaias','is':'isaias',
+  'jeremias':'jeremias','jr':'jeremias',
+  'lamentacoes':'lamentacoes','lm':'lamentacoes',
+  'ezequiel':'ezequiel','ez':'ezequiel',
+  'daniel':'daniel','dn':'daniel',
+  'oseias':'oseias','os':'oseias',
+  'joel':'joel','jl':'joel',
+  'amos':'amos','am':'amos',
+  'obadias':'obadias','ob':'obadias',
+  'jonas':'jonas','jn':'jonas',
+  'miqueias':'miqueias','mq':'miqueias',
+  'naum':'naum','na':'naum',
+  'habacuque':'habacuque','hc':'habacuque',
+  'sofonias':'sofonias','sf':'sofonias',
+  'ageu':'ageu','ag':'ageu',
+  'zacarias':'zacarias','zc':'zacarias',
+  'malaquias':'malaquias','ml':'malaquias',
+  'mateus':'mateus','mt':'mateus',
+  'marcos':'marcos','mc':'marcos','mr':'marcos',
+  'lucas':'lucas','lc':'lucas',
+  'joao':'joao',
+  'atos':'atos','at':'atos',
+  'romanos':'romanos','rm':'romanos',
+  '1 corintios':'1 corintios','1co':'1 corintios',
+  '2 corintios':'2 corintios','2co':'2 corintios',
+  'galatas':'galatas','gl':'galatas',
+  'efesios':'efesios','ef':'efesios',
+  'filipenses':'filipenses','fp':'filipenses',
+  'colossenses':'colossenses','cl':'colossenses',
+  '1 tessalonicenses':'1 tessalonicenses','1ts':'1 tessalonicenses',
+  '2 tessalonicenses':'2 tessalonicenses','2ts':'2 tessalonicenses',
+  '1 timoteo':'1 timoteo','1tm':'1 timoteo',
+  '2 timoteo':'2 timoteo','2tm':'2 timoteo',
+  'tito':'tito','tt':'tito',
+  'filemom':'filemom','fm':'filemom',
+  'hebreus':'hebreus','hb':'hebreus',
+  'tiago':'tiago','tg':'tiago',
+  '1 pedro':'1 pedro','1pe':'1 pedro',
+  '2 pedro':'2 pedro','2pe':'2 pedro',
+  '1 joao':'1 joao','1jo':'1 joao',
+  '2 joao':'2 joao','2jo':'2 joao',
+  '3 joao':'3 joao','3jo':'3 joao',
+  'judas':'judas','jd':'judas',
+  'apocalipse':'apocalipse','ap':'apocalipse'
+};
+
+function buildBookAliases(){
+  BOOK_ALIASES = {};
+  BIBLE.books.forEach((b, idx) => {
+    BOOK_ALIASES[normalize(b.n)] = idx;
+  });
+  // Map extra aliases to canonical normalized name -> resolve to index
+  Object.keys(EXTRA_ALIASES).forEach(alias => {
+    const target = normalize(EXTRA_ALIASES[alias]);
+    const idx = BOOK_ALIASES[target];
+    if(idx !== undefined){
+      BOOK_ALIASES[normalize(alias)] = idx;
+    }
+  });
+  // "joao" alone is ambiguous with 1/2/3 João; default bare "joao" to the Gospel
+  const gospelIdx = BOOK_ALIASES[normalize('joao')];
+  if(gospelIdx === undefined){
+    const idx = BIBLE.books.findIndex(b => normalize(b.n) === 'joao');
+    if(idx !== -1) BOOK_ALIASES['joao'] = idx;
+  }
+}
+
+function loadBible(){
+  fetch('./bible.json')
+    .then(r => r.json())
+    .then(json => {
+      BIBLE = json;
+      buildBookAliases();
+      BIBLE_READY = true;
+      clearStatus();
+    })
+    .catch(() => {
+      showStatus('Não foi possível carregar a Bíblia completa agora. A busca por temas continua funcionando normalmente.');
+    });
+}
+
+function resolveBook(bookPartRaw){
+  const bookPart = normalize(bookPartRaw).replace(/\s+/g,' ').trim();
+  if(BOOK_ALIASES && BOOK_ALIASES[bookPart] !== undefined) return BOOK_ALIASES[bookPart];
+  if(!BIBLE) return -1;
+  // try prefix match against full book names (unique match only)
+  const matches = [];
+  BIBLE.books.forEach((b, idx) => {
+    if(normalize(b.n).startsWith(bookPart) && bookPart.length >= 3){
+      matches.push(idx);
+    }
+  });
+  if(matches.length === 1) return matches[0];
+  return -1;
+}
+
+// Parses strings like "João 3:16", "Salmos 23", "1 Coríntios 13:4-7"
+function parseReference(rawQuery){
+  if(!BIBLE_READY) return null;
+  const norm = normalize(rawQuery).replace(/\s+/g,' ').trim();
+  const m = norm.match(/^(.+?)\s+(\d{1,3})(?::\s?(\d{1,3})(?:\s?[-–]\s?(\d{1,3}))?)?$/);
+  if(!m) return null;
+  const bookIdx = resolveBook(m[1]);
+  if(bookIdx === -1) return null;
+  const chapterNum = parseInt(m[2], 10);
+  const book = BIBLE.books[bookIdx];
+  if(chapterNum < 1 || chapterNum > book.c.length) return null;
+  const chapterVerses = book.c[chapterNum - 1];
+  let verseStart = m[3] ? parseInt(m[3], 10) : 1;
+  let verseEnd = m[4] ? parseInt(m[4], 10) : (m[3] ? verseStart : chapterVerses.length);
+  if(verseStart < 1 || verseStart > chapterVerses.length) return null;
+  verseEnd = Math.min(verseEnd, chapterVerses.length);
+  const verses = [];
+  for(let v = verseStart; v <= verseEnd; v++){
+    verses.push({ num:v, text: chapterVerses[v-1] });
+  }
+  const label = book.n + ' ' + chapterNum + (m[3] ? (':' + verseStart + (verseEnd !== verseStart ? '-' + verseEnd : '')) : '');
+  return { book: book.n, chapter: chapterNum, verses, label };
+}
+
+// Busca literal por palavra em TODA a Bíblia (todos os 66 livros)
+function fullTextSearch(qWordsLong, excludeSet, limit){
+  const results = [];
+  if(!BIBLE_READY || !qWordsLong.length) return results;
+  outer:
+  for(let bi = 0; bi < BIBLE.books.length; bi++){
+    const book = BIBLE.books[bi];
+    for(let ci = 0; ci < book.c.length; ci++){
+      const chapter = book.c[ci];
+      for(let vi = 0; vi < chapter.length; vi++){
+        const reference = book.n + ' ' + (ci+1) + ':' + (vi+1);
+        if(excludeSet.has(reference)) continue;
+        const text = chapter[vi];
+        const haystack = normalize(text);
+        if(qWordsLong.some(w => haystack.includes(w))){
+          results.push({ reference, text });
+          if(results.length >= limit) break outer;
+        }
+      }
+    }
+  }
+  return results;
+}
+
+
+const queryEl = document.getElementById('query');
+const form = document.getElementById('search-form');
+const errorBox = document.getElementById('error-box');
+const statusNote = document.getElementById('status-note');
+const resultsEl = document.getElementById('results');
+const suggestionsEl = document.getElementById('suggestions');
+
+const SUGGESTIONS = ['Medo', 'Confiança', 'Proteção'];
+
+function renderSuggestions(){
+  suggestionsEl.innerHTML = '';
+  SUGGESTIONS.forEach(label => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'suggestion-chip';
+    chip.textContent = label;
+    chip.addEventListener('click', () => {
+      queryEl.value = label;
+      runSearch(label);
+    });
+    suggestionsEl.appendChild(chip);
+  });
+}
+renderSuggestions();
+
+function showError(message){
+  errorBox.textContent = message;
+  errorBox.classList.add('visible');
+}
+function clearError(){
+  errorBox.classList.remove('visible');
+  errorBox.textContent = '';
+}
+function clearStatus(){
+  statusNote.classList.remove('visible');
+  statusNote.textContent = '';
+}
+function showStatus(message){
+  statusNote.textContent = message;
+  statusNote.classList.add('visible');
+}
+
+function escapeRegex(str){
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function allVerses(){
+  const list = [];
+  TOPICS.forEach(t => t.verses.forEach(v => list.push(v)));
+  return list;
+}
+
+// Busca por tema: primeiro casa com os tópicos curados (que trazem a
+// explicação do porquê), depois complementa com uma varredura literal em
+// toda a Bíblia completa (quando já carregada) para não deixar de fora
+// nenhuma ocorrência da palavra buscada em qualquer um dos 66 livros.
+function search(rawQuery){
+  const q = normalize(rawQuery);
+  const qWords = q.split(/\s+/).filter(Boolean);
+  const scored = TOPICS.map(topic => {
+    let score = 0;
+    topic.keywords.forEach(kw => {
+      const nkw = normalize(kw);
+      const wholeWord = new RegExp('(^|\\s)' + escapeRegex(nkw) + '(\\s|$)');
+      if(wholeWord.test(q)){
+        score += nkw.split(' ').length * 3;
+      } else if(nkw.length >= 4 && qWords.some(w => w.length >= 4 && (nkw.includes(w) || w.includes(nkw)))){
+        score += 1;
+      }
+    });
+    return { topic, score };
+  }).filter(s => s.score > 0)
+    .sort((a,b) => b.score - a.score);
+
+  const seen = new Set();
+  const verses = [];
+  scored.forEach(s => {
+    s.topic.verses.forEach(v => {
+      if(!seen.has(v.reference)){
+        seen.add(v.reference);
+        verses.push(v);
+      }
+    });
+  });
+
+  // Varredura literal no acervo curado primeiro (respostas com "porquê").
+  const qWordsLong = qWords.filter(w => w.length >= 3);
+  if(qWordsLong.length){
+    allVerses().forEach(v => {
+      if(seen.has(v.reference)) return;
+      const haystack = normalize(v.text + ' ' + v.reference);
+      if(qWordsLong.some(w => haystack.includes(w))){
+        seen.add(v.reference);
+        verses.push(v);
+      }
+    });
+  }
+
+  // Complementa com toda a Bíblia (66 livros), quando já carregada.
+  const RESULT_CAP = 60;
+  let moreAvailable = false;
+  if(BIBLE_READY && qWordsLong.length && verses.length < RESULT_CAP){
+    const extra = fullTextSearch(qWordsLong, seen, RESULT_CAP - verses.length + 1);
+    if(extra.length > RESULT_CAP - verses.length){
+      moreAvailable = true;
+      extra.length = RESULT_CAP - verses.length;
+    }
+    extra.forEach(v => verses.push(v));
+  }
+
+  return { verses, moreAvailable };
+}
+
+function renderResults(passages, queryLabel, moreAvailable){
+  resultsEl.innerHTML = '';
+  if(!passages.length){
+    resultsEl.innerHTML = '<p class="results-heading">Nenhuma passagem encontrada para esse tema ainda. Tente palavras como ansiedade, perdão, medo, confiança, proteção, propósito, casamento, dinheiro, fé, cura, força, oração — ou digite uma referência como "João 3:16".</p>';
+    return;
+  }
+  const heading = document.createElement('p');
+  heading.className = 'results-heading';
+  heading.textContent = passages.length + (passages.length === 1 ? ' versículo encontrado' : ' versículos encontrados') + (queryLabel ? ' sobre "' + queryLabel + '"' : '');
+  resultsEl.appendChild(heading);
+
+  passages.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'verse-card';
+
+    const ref = document.createElement('div');
+    ref.className = 'verse-ref';
+    ref.innerHTML = '<span class="verse-ref-text">' + p.reference + '</span>';
+
+    const verseText = document.createElement('p');
+    verseText.className = 'verse-text';
+    verseText.textContent = p.text;
+
+    card.appendChild(ref);
+    card.appendChild(verseText);
+
+    if(p.why){
+      const why = document.createElement('p');
+      why.className = 'verse-why';
+      why.textContent = p.why;
+      card.appendChild(why);
+    }
+    resultsEl.appendChild(card);
+  });
+
+  if(moreAvailable){
+    const more = document.createElement('p');
+    more.className = 'results-heading';
+    more.style.marginTop = '20px';
+    more.textContent = 'Há mais ocorrências na Bíblia para esse termo. Tente uma palavra mais específica para refinar.';
+    resultsEl.appendChild(more);
+  }
+}
+
+// Exibe uma referência direta (capítulo, versículo ou intervalo) como uma
+// passagem corrida, com os números de versículo destacados inline.
+function renderReferencePassage(ref){
+  resultsEl.innerHTML = '';
+  const heading = document.createElement('p');
+  heading.className = 'group-heading';
+  heading.textContent = ref.label;
+  resultsEl.appendChild(heading);
+
+  const card = document.createElement('div');
+  card.className = 'verse-card';
+  const passage = document.createElement('p');
+  passage.className = 'verse-text';
+  ref.verses.forEach(v => {
+    const supEl = document.createElement('sup');
+    supEl.textContent = ' ' + v.num + ' ';
+    supEl.style.color = 'var(--accent)';
+    supEl.style.fontStyle = 'normal';
+    passage.appendChild(supEl);
+    passage.appendChild(document.createTextNode(v.text + ' '));
+  });
+  card.appendChild(passage);
+  resultsEl.appendChild(card);
+}
+
+function runSearch(rawQuery){
+  const q = rawQuery.trim();
+  if(!q){
+    showError('Digite um tema, uma referência ou palavra para buscar.');
+    return;
+  }
+  clearError();
+  clearStatus();
+
+  const ref = parseReference(q);
+  if(ref){
+    renderReferencePassage(ref);
+    resultsEl.scrollIntoView({ behavior:'smooth', block:'start' });
+    return;
+  }
+
+  const { verses, moreAvailable } = search(q);
+  renderResults(verses, q, moreAvailable);
+  resultsEl.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// Versículo do dia: preenche a tela antes de qualquer busca, para a página
+// inicial não ficar vazia. Escolha determinística pela data, sem precisar
+// de internet nem de sorteio a cada visita.
+function renderDailyVerse(){
+  const list = allVerses();
+  const startOfYear = new Date(new Date().getFullYear(), 0, 0);
+  const diff = new Date() - startOfYear;
+  const dayOfYear = Math.floor(diff / 86400000);
+  const v = list[dayOfYear % list.length];
+
+  resultsEl.innerHTML = '';
+  const h = document.createElement('p');
+  h.className = 'group-heading';
+  h.textContent = 'Versículo de hoje';
+  resultsEl.appendChild(h);
+
+  const card = document.createElement('div');
+  card.className = 'verse-card';
+  const ref = document.createElement('div');
+  ref.className = 'verse-ref';
+  ref.innerHTML = '<span class="verse-ref-text">' + v.reference + '</span>';
+  const verseText = document.createElement('p');
+  verseText.className = 'verse-text';
+  verseText.textContent = v.text;
+  card.appendChild(ref);
+  card.appendChild(verseText);
+  if(v.why){
+    const why = document.createElement('p');
+    why.className = 'verse-why';
+    why.textContent = v.why;
+    card.appendChild(why);
+  }
+  resultsEl.appendChild(card);
+}
+renderDailyVerse();
+showStatus('Carregando a Bíblia completa para busca offline…');
+loadBible();
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  runSearch(queryEl.value);
+});
+
+const splashEl = document.getElementById('splash');
+const abrirBtn = document.getElementById('abrir-btn');
+if(abrirBtn && splashEl){
+  abrirBtn.addEventListener('click', () => {
+    splashEl.classList.add('is-hidden');
+    setTimeout(() => { splashEl.style.display = 'none'; }, 450);
+  });
+}
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
